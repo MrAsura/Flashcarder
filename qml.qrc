@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>cardTypeDict.qml</file>
+        <file>cardTypeOneB.qml</file>
+        <file>cardTypeOneF.qml</file>
+    </qresource>
+</RCC>
