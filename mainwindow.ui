@@ -33,6 +33,8 @@
     <addaction name="actionEdit_Create_Cardlist"/>
     <addaction name="separator"/>
     <addaction name="actionCard_Preview"/>
+    <addaction name="separator"/>
+    <addaction name="actionChange_Directory"/>
    </widget>
    <widget class="QMenu" name="menuDictionaries">
     <property name="enabled">
@@ -75,6 +77,11 @@
   <action name="actionEdit_Create_Cardlist">
    <property name="text">
     <string>Edit/Create Cardlist</string>
+   </property>
+  </action>
+  <action name="actionChange_Directory">
+   <property name="text">
+    <string>Change Directory</string>
    </property>
   </action>
  </widget>

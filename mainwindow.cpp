@@ -20,48 +20,28 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    QString dir_name = QFileDialog::getExistingDirectory(this, tr("Choose data directory"),
-                                                    "../",
-                                                    QFileDialog::ShowDirsOnly
-                                                    | QFileDialog::DontResolveSymlinks);
-    def_dir_ = dir_name;
+    qDebug() << (QDir::currentPath() + "/data");
 
-    //Read cardtypes
-    CardFactory::getInstance().readCardtypes( dir_name );
-
-    //Insert .dict files to the menu list
-    QDir dir(dir_name);
-    dir.setFilter( QDir::Files);
-    dir.setNameFilters(QStringList("*.dict"));
-    QStringList dicts = dir.entryList();
-
-    for( QString dict: dicts)
+    if( QDir(QDir::currentPath() + "/data").exists() )
     {
-        QAction* act = new QAction(dict,ui->menuDictionaries);
-        act->setCheckable(true);
-        ui->menuDictionaries->addAction(act);
+        //If a data dir exist use it as the default dir
+        def_dir_ = QDir::currentPath() + "/data";
+    }
+    else
+    {
+        def_dir_ = getNewDir();
     }
 
-    ui->menuDictionaries->addSeparator();
-
-    dir.setNameFilters(QStringList("*.cards"));
-    dicts = dir.entryList();
-
-    for( QString dict: dicts)
-    {
-        QAction* act = new QAction(dict,ui->menuDictionaries);
-        act->setCheckable(true);
-        ui->menuDictionaries->addAction(act);
-    }
+    reloadDir();
 
     //Use a stacked widget to display different views
-    //Widgets hould be added in the order they are in the menu
+    //Widgets should be added in the order they are in the menu
     QStackedWidget* cont = new QStackedWidget(ui->centralWidget);
     QWidget* cardView = new QWidget(cont);
     cardView->setObjectName("CardView");
-    cont->addWidget( cardView ); //View cards
-    cont->addWidget( new DictEdit(cont, dir_name) ); //Dict edit view
-    cont->addWidget( new CardEdit(cont,dir_name) ); //Card edit view
+    cont->addWidget( cardView ); //View cards TODO: replace with proper widget?
+    cont->addWidget( new DictEdit(cont, def_dir_) ); //Dict edit view
+    cont->addWidget( new CardEdit(cont,def_dir_) ); //Card edit view
     cont->addWidget( makeCardPreview(cont) ); //Card type preview
 
     cont_ = cont;
@@ -109,6 +89,7 @@ QWidget *MainWindow::makeCardPreview( QWidget* parent )
     QQuickWidget* card1 = new QQuickWidget(QUrl("qrc:///cardTypeDict.qml"));
     QQuickWidget* card2 = new QQuickWidget(QUrl("qrc:///cardTypeOneB.qml"));
     QQuickWidget* card3 = new QQuickWidget(QUrl("qrc:///cardTypeOneF.qml"));
+    QQuickWidget* test = new QQuickWidget(QUrl("qrc:///deck.qml"));
 
     //ui->centralWidget->layout()->addWidget(card1);
     //ui->centralWidget->layout()->addWidget(card2);
@@ -121,13 +102,71 @@ QWidget *MainWindow::makeCardPreview( QWidget* parent )
     lo->addWidget(card1,1,1,1,1);
     lo->addWidget(card2,2,1,1,1);
     lo->addWidget(card3,2,2,1,1);
+    lo->addWidget(test,1,2,1,1);
 
     wid->setLayout(lo);
 
     return wid;
 }
 
+QString MainWindow::getNewDir()
+{
+    return QFileDialog::getExistingDirectory(this, tr("Choose data directory"),
+                                             "../",
+                                             QFileDialog::ShowDirsOnly
+                                             | QFileDialog::DontResolveSymlinks);
+}
+
+void MainWindow::reloadDir()
+{
+    //Reset current stuff
+    ui->menuDictionaries->clear();
+
+    //Read cardtypes
+    CardFactory::getInstance().readCardtypes( def_dir_ );
+
+    //Insert .dict files to the menu list
+    QDir dir(def_dir_);
+    dir.setFilter( QDir::Files);
+    dir.setNameFilters(QStringList("*.dict"));
+    QStringList dicts = dir.entryList();
+
+    for( QString dict: dicts)
+    {
+        QAction* act = new QAction(dict,ui->menuDictionaries);
+        act->setCheckable(true);
+        ui->menuDictionaries->addAction(act);
+    }
+
+    ui->menuDictionaries->addSeparator();
+
+    dir.setNameFilters(QStringList("*.cards"));
+    dicts = dir.entryList();
+
+    for( QString dict: dicts)
+    {
+        QAction* act = new QAction(dict,ui->menuDictionaries);
+        act->setCheckable(true);
+        ui->menuDictionaries->addAction(act);
+    }
+}
+
+void MainWindow::reloadWidgets()
+{
+    //TODO: Add other widgets.
+    cont_->findChild<DictEdit*>("DictEdit")->setDir(def_dir_);
+    cont_->findChild<CardEdit*>("CardEdit")->setDir(def_dir_);
+}
+
 void MainWindow::on_actionView_Cards_triggered()
 {
     cont_->setCurrentWidget( cont_->findChild<QWidget*>("CardView") );
+}
+
+void MainWindow::on_actionChange_Directory_triggered()
+{
+    //ask for a new dir and refresh
+    def_dir_ = getNewDir();
+    reloadDir();
+    reloadWidgets();
 }

@@ -28,6 +28,11 @@ CardEdit::~CardEdit()
     delete ui;
 }
 
+void CardEdit::setDir(QString dir)
+{
+    def_dir_ = dir;
+}
+
 void CardEdit::on_newCtBtn_clicked()
 {
     //Set up a new cardtype template

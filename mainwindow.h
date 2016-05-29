@@ -25,6 +25,8 @@ private slots:
 
     void on_actionView_Cards_triggered();
 
+    void on_actionChange_Directory_triggered();
+
 private:
     Ui::MainWindow *ui;
 
@@ -32,6 +34,9 @@ private:
     QStackedWidget* cont_;
 
     QWidget* makeCardPreview(QWidget *parent);
+    QString getNewDir();
+    void reloadDir(); //Update files based on def_dir_
+    void reloadWidgets(); //Update widgets
 };
 
 #endif // MAINWINDOW_H

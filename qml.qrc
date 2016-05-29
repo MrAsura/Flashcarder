@@ -3,5 +3,6 @@
         <file>cardTypeDict.qml</file>
         <file>cardTypeOneB.qml</file>
         <file>cardTypeOneF.qml</file>
+        <file>deck.qml</file>
     </qresource>
 </RCC>

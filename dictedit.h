@@ -20,6 +20,9 @@ public:
     explicit DictEdit(QWidget *parent = 0, QString def_dir = "");
     ~DictEdit();
 
+public slots:
+    void setDir( QString dir );
+
 private slots:
     void on_loadButton_clicked();
 

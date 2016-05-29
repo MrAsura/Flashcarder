@@ -21,6 +21,11 @@ DictEdit::~DictEdit()
     delete ui;
 }
 
+void DictEdit::setDir(QString dir)
+{
+    def_dir_ = dir;
+}
+
 void DictEdit::on_loadButton_clicked()
 {
     QString file_name = QFileDialog::getOpenFileName(this,tr("Load dict or card"), def_dir_,tr( "Dicts (*.dict)"));
