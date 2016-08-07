@@ -34,8 +34,4 @@ FORMS    += mainwindow.ui \
 RESOURCES += \
     qml.qrc
 
-OTHER_FILES += \
-    cardTypeDict.qml \
-    cardTypeOneB.qml \
-    cardTypeOneF.qml
 

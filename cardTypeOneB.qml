@@ -8,6 +8,11 @@ Rectangle {
     property string kanji: "下"
     property int num: 50
 
+    function init( param ){
+        kanji = param["kanji"];
+        num = param["num"];
+    }
+
     width: 200*scale
     height: 300*scale
     radius: 12

@@ -11,6 +11,7 @@
 #include <QQmlEngine>
 #include <QQmlComponent>
 #include <QQuickWidget>
+#include <QQuickItem>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -90,6 +91,7 @@ QWidget *MainWindow::makeCardPreview( QWidget* parent )
     QQuickWidget* card2 = new QQuickWidget(QUrl("qrc:///cardTypeOneB.qml"));
     QQuickWidget* card3 = new QQuickWidget(QUrl("qrc:///cardTypeOneF.qml"));
     QQuickWidget* test = new QQuickWidget(QUrl("qrc:///deck.qml"));
+    QQuickWidget* loader = new QQuickWidget(QUrl("qrc:///cardLoader.qml"));
 
     //ui->centralWidget->layout()->addWidget(card1);
     //ui->centralWidget->layout()->addWidget(card2);
@@ -103,6 +105,17 @@ QWidget *MainWindow::makeCardPreview( QWidget* parent )
     lo->addWidget(card2,2,1,1,1);
     lo->addWidget(card3,2,2,1,1);
     lo->addWidget(test,1,2,1,1);
+    lo->addWidget(loader,2,3,1,1);
+
+    //Load a card as a test in the card loader
+    QVariant url = "qrc:///cardTypeOneB.qml";
+    QVariantMap param;
+    param.insert("kanji","+");
+    param.insert("num",50);
+    QQuickItem* root = loader->rootObject();
+    QObject* call_obj = root;
+    QMetaObject::invokeMethod(call_obj,"load", Q_ARG(QVariant,url), Q_ARG(QVariant,QVariant::fromValue(param)));
+    QMetaObject::invokeMethod(call_obj,"printTest");
 
     wid->setLayout(lo);
 

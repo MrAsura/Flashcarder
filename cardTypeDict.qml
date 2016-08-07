@@ -9,6 +9,10 @@ Rectangle{
     property string word: "word"
     property int scale: 1
 
+    function init( param ){
+        word = param["word"];
+    }
+
     border.color: "black"
 
     width: 300*scale

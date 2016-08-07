@@ -8,6 +8,11 @@ Rectangle {
     property string desc: "floor with magic wand below"
     property int band: 50
 
+    function init( param ){
+        word = param["word"];
+        desc = param["desc"];
+    }
+
     width: 200*scale
     height: 300*scale
     radius: 12

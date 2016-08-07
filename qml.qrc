@@ -4,5 +4,6 @@
         <file>cardTypeOneB.qml</file>
         <file>cardTypeOneF.qml</file>
         <file>deck.qml</file>
+        <file>cardLoader.qml</file>
     </qresource>
 </RCC>
