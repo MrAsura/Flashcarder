@@ -18,7 +18,8 @@ SOURCES += main.cpp\
     dictedit.cpp \
     cardlist.cpp \
     cardfactory.cpp \
-    cardedit.cpp
+    cardedit.cpp \
+    card.cpp
 
 HEADERS  += mainwindow.h \
     dictedit.h \

@@ -7,6 +7,7 @@
 #include <QStringList>
 #include <QMap>
 #include <QJsonDocument>
+#include <QVariant>
 
 class CardFactory
 {
@@ -15,6 +16,9 @@ public:
 
     static const QString CardTypeID;
     static const QString CardTypeFields;
+
+    typedef QString c_type_id_t;
+    typedef Card*(*constructor_t)(QVariant);
 
     //Get a card list from a data file
     Cardlist getCardlist( QString filename );
@@ -25,6 +29,12 @@ public:
     void readCardtypes(QString dir_name);
     QStringList getFields( QString cardtype );
 
+    //Register a custom card type
+    void registerType( c_type_id_t type_id, constructor_t func, QVariantMap templ);
+
+    //Load card templates from qml files (in the cardtype folder etc.).
+    void loadCardTemplates();
+
 private:
     CardFactory( CardFactory const& ) = delete;
     void operator= ( CardFactory fac ) = delete;
@@ -32,7 +42,12 @@ private:
 
     QMap<QString,QStringList> cardtypes_;
 
+    QMap<c_type_id_t, constructor_t> constructors_;
+    QMap<c_type_id_t, QVariantMap> templates_;
+
     QJsonDocument readJson( QString file ); //Reads a json file and returns it as a document
+
+    void addTemplate( c_type_id_t type_id, QVariantMap templ );
 };
 
 #endif // CARDFACTORY_H
