@@ -13,6 +13,13 @@ Rectangle {
         num = param["num"];
     }
 
+    //Template for initializing this card type
+    function getTemplate(){
+        return {kanji:undefined,
+                num:undefined,
+                scale:1};
+    }
+
     width: 200*scale
     height: 300*scale
     radius: 12

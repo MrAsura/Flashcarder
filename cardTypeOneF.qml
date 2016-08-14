@@ -13,6 +13,14 @@ Rectangle {
         desc = param["desc"];
     }
 
+    //Template for initializing this card type
+    function getTemplate(){
+        return {word:undefined,
+                desc:undefined,
+                scale:1,
+                band:50};
+    }
+
     width: 200*scale
     height: 300*scale
     radius: 12

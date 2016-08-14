@@ -18,7 +18,7 @@ public:
     static const QString CardTypeFields;
 
     typedef QString c_type_id_t;
-    typedef Card*(*constructor_t)(QVariant);
+    typedef Card*(*constructor_t)(QVariantMap);
 
     //Get a card list from a data file
     Cardlist getCardlist( QString filename );
@@ -44,6 +44,7 @@ private:
 
     QMap<c_type_id_t, constructor_t> constructors_;
     QMap<c_type_id_t, QVariantMap> templates_;
+    QMap<c_type_id_t, QUrl> urls_; //TODO: add url stuff
 
     QJsonDocument readJson( QString file ); //Reads a json file and returns it as a document
 

@@ -8,12 +8,25 @@
 class Card
 {
 public:
-    virtual ~Card() = 0;
-    virtual void display() = 0; //Display the card
-    virtual void flip() = 0; //Display now show the other side of the card (if it has one)
-    virtual QStringList keywords() = 0; //Return keywords associated with the card. Can be used to find a specific card.
+    ~Card();
+    Card(QVariantMap data, QObject* context, QStringList keywords);
+    //Context is used for displaying the card
+    void setContext(QObject* context);
+    void setData( QVariantMap data );
+    void setValue( QString key, QVariant value);
+    void addKeywords(QStringList keywords );
+    void clearKeywords();
+    void display(); //Display the card
 
-    static Card* createCard(QVariant data);
+    QStringList keywords(); //Return keywords associated with the card. Can be used to find a specific card.
+
+    //Creates an instance of this card
+    static Card* createCard(QVariantMap data, QObject* context = nullptr, QStringList keywords = QStringList() );
+
+private:
+    QVariantMap data_;
+    QObject* context_;
+    QStringList keywords_;
 };
 
 #endif // CARD_H

@@ -13,6 +13,12 @@ Rectangle{
         word = param["word"];
     }
 
+    //Template for initializing this card type
+    function getTemplate(){
+        return {word:undefined,
+                scale:1};
+    }
+
     border.color: "black"
 
     width: 300*scale
