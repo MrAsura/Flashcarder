@@ -5,25 +5,41 @@
 #include <QStringList>
 #include <QVariant>
 
+#include "global.h"
+
 class Card
 {
 public:
     ~Card();
-    Card(QVariantMap data, QObject* context, QStringList keywords);
+    Card( c_type_id_t type, QVariantMap data, QObject* context, QStringList keywords);
+
     //Context is used for displaying the card
     void setContext(QObject* context);
-    void setData( QVariantMap data );
-    void setValue( QString key, QVariant value);
+
+    void setData( const QVariantMap &data );
+    void setValue( const QString &key, const QVariant &value);
+    QVariant getValue( const QString &key );
+
     void addKeywords(QStringList keywords );
     void clearKeywords();
+
     void display(); //Display the card
 
     QStringList keywords(); //Return keywords associated with the card. Can be used to find a specific card.
 
     //Creates an instance of this card
-    static Card* createCard(QVariantMap data, QObject* context = nullptr, QStringList keywords = QStringList() );
+    static Card* createCard(c_type_id_t type, QVariantMap data, QObject* context = nullptr, QStringList keywords = QStringList() );
+
+    QString getType() const;
+    void setType(const c_type_id_t &type);
+
+    QVariantMap getData() const;
+
+    QObject *getContext() const;
 
 private:
+
+    c_type_id_t type_;
     QVariantMap data_;
     QObject* context_;
     QStringList keywords_;

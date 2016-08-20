@@ -9,6 +9,10 @@
 #include <QJsonDocument>
 #include <QVariant>
 
+#include "global.h"
+
+class Card;
+
 class CardFactory
 {
 public:
@@ -17,8 +21,7 @@ public:
     static const QString CardTypeID;
     static const QString CardTypeFields;
 
-    typedef QString c_type_id_t;
-    typedef Card*(*constructor_t)(QVariantMap);
+    typedef Card*(*constructor_t)(c_type_id_t, QVariantMap, QObject*, QStringList);
 
     //Get a card list from a data file
     Cardlist getCardlist( QString filename );
@@ -30,10 +33,13 @@ public:
     QStringList getFields( QString cardtype );
 
     //Register a custom card type
-    void registerType( c_type_id_t type_id, constructor_t func, QVariantMap templ);
+    //If templ is not given, url is used to get templ by loading the qml
+    void registerType( c_type_id_t type_id, constructor_t func, QUrl url, QVariantMap templ = QVariantMap());
 
     //Load card templates from qml files (in the cardtype folder etc.).
     void loadCardTemplates();
+
+    QUrl getUrl(c_type_id_t type );
 
 private:
     CardFactory( CardFactory const& ) = delete;
@@ -48,7 +54,9 @@ private:
 
     QJsonDocument readJson( QString file ); //Reads a json file and returns it as a document
 
+    void addUrl( c_type_id_t type_id, QUrl url );
     void addTemplate( c_type_id_t type_id, QVariantMap templ );
+    void addConstructor( c_type_id_t type_id, constructor_t func );
 };
 
 #endif // CARDFACTORY_H

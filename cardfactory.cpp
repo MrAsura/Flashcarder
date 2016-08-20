@@ -27,6 +27,11 @@ QJsonDocument CardFactory::readJson(QString file)
     return json_doc;
 }
 
+void CardFactory::addUrl(c_type_id_t type_id, QUrl url)
+{
+    urls_.insert(type_id, url);
+}
+
 
 CardFactory &CardFactory::getInstance()
 {
@@ -65,44 +70,49 @@ QStringList CardFactory::getFields(QString cardtype)
     return cardtypes_.value(cardtype);
 }
 
-void CardFactory::registerType(CardFactory::c_type_id_t type_id, CardFactory::constructor_t func, QVariantMap templ)
+void CardFactory::registerType(c_type_id_t type_id, CardFactory::constructor_t func, QUrl url, QVariantMap templ )
 {
-    constructors_.insert(type_id,func);
-    addTemplate(type_id,templ);
+    addUrl(type_id, url);
+    addConstructor(type_id,func);
+    if( templ.empty() ){
+        //Load template from url
+        //Load build in card types. Use the constructor for the base card for types loaded from qmls
+        QQmlEngine engine; //Create gml engine for getting templates from the qml files
+
+        QQmlComponent comp(&engine, url);
+        QObject* call_obj = comp.create();
+
+        QMetaObject::invokeMethod(call_obj,"getTemplate", Q_RETURN_ARG(QVariantMap,templ));
+        addTemplate(type_id, templ);
+
+        delete call_obj;
+    }
+    else {
+        addTemplate(type_id,templ);
+    }
 }
 
-void CardFactory::addTemplate(CardFactory::c_type_id_t type_id, QVariantMap templ)
+void CardFactory::addTemplate(c_type_id_t type_id, QVariantMap templ)
 {
     templates_.insert(type_id, templ);
+}
+
+void CardFactory::addConstructor(c_type_id_t type_id, CardFactory::constructor_t func)
+{
+    constructors_.insert(type_id,func);
 }
 
 void CardFactory::loadCardTemplates()
 {
     //TODO: load card templates from external qmls
 
-    //Load build in card types. Use the constructor for the base card for types loaded from qmls
-    QQmlEngine engine; //Create gml engine for getting templates from the qml files
+    registerType("cardTypeDict",&Card::createCard,QUrl("qrc:///cardTypeDict.qml"));
+    registerType("cardTypeOneB",&Card::createCard,QUrl("qrc:///cardTypeOneB.qml"));
+    registerType("cardTypeOneF",&Card::createCard,QUrl("qrc:///cardTypeOneF.qml"));
 
-    QQmlComponent comp(&engine, QUrl("qrc:///cardTypeDict.qml"));
-    QObject* call_obj = comp.create();
+}
 
-    QVariantMap templ;
-
-    QMetaObject::invokeMethod(call_obj,"getTemplate", Q_RETURN_ARG(QVariantMap,templ));
-    registerType("cardTypeDict",Card::createCard,templ);
-    delete call_obj;
-
-    comp.loadUrl(QUrl("qrc:///cardTypeOneB.qml"));
-    call_obj = comp.create();
-
-    QMetaObject::invokeMethod(call_obj,"getTemplate", Q_RETURN_ARG(QVariantMap,templ));
-    registerType("cardTypeOneB",&Card::createCard,templ);
-    delete call_obj;
-
-    comp.loadUrl(QUrl("qrc:///cardTypeOneF.qml"));
-    call_obj = comp.create();
-
-    QMetaObject::invokeMethod(call_obj,"getTemplate", Q_RETURN_ARG(QVariantMap,templ));
-    registerType("cardTypeOneF",&Card::createCard,templ);
-    delete call_obj;
+QUrl CardFactory::getUrl(c_type_id_t type)
+{
+    return urls_[type];
 }

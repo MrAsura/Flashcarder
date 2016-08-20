@@ -26,7 +26,8 @@ HEADERS  += mainwindow.h \
     card.h \
     cardlist.h \
     cardfactory.h \
-    cardedit.h
+    cardedit.h \
+    global.h
 
 FORMS    += mainwindow.ui \
     dictedit.ui \
@@ -34,5 +35,3 @@ FORMS    += mainwindow.ui \
 
 RESOURCES += \
     qml.qrc
-
-

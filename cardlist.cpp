@@ -151,7 +151,8 @@ std::vector<Cardlist::card_ptr> Cardlist::findKeyword(QStringList keywords)
     {
         for( QString kw: keywords)
         {
-            if( cur->card->keywords().contains(kw) )
+            QStringList klist = cur->card->keywords();
+            if( klist.contains(kw) )
             {
                 cards.push_back( cur->card );
             }
