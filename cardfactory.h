@@ -8,6 +8,7 @@
 #include <QMap>
 #include <QJsonDocument>
 #include <QVariant>
+#include <QVariantMap>
 
 #include "global.h"
 
@@ -20,6 +21,15 @@ public:
 
     static const QString CardTypeID;
     static const QString CardTypeFields;
+
+    //Used for generic cardlists
+    static const QString cardTmplIdFieldName;
+    static const QString cardTmplDataFieldName;
+    //Returns the base template for a card.
+    //Contains the card type (cardTmplIdFieldName) and
+    //the data (cardTmplDataFieldName) for the given type
+    //The data is in the form specified by the types template
+    static QVariantMap getCardBaseTemplate();
 
     typedef Card*(*constructor_t)(c_type_id_t, QVariantMap, QObject*, QStringList);
 

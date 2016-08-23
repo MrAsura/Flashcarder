@@ -11,6 +11,8 @@
 
 const QString CardFactory::CardTypeID = "cardtypeName";
 const QString CardFactory::CardTypeFields = "fieldNames";
+const QString CardFactory::cardTmplIdFieldName = "cardType";
+const QString CardFactory::cardTmplDataFieldName = "data";
 
 CardFactory::CardFactory(): cardtypes_()
 {
@@ -37,6 +39,14 @@ CardFactory &CardFactory::getInstance()
 {
     static CardFactory fac;
     return fac;
+}
+
+QVariantMap CardFactory::getCardBaseTemplate()
+{
+    QVariantMap tmpl();
+    tmpl.insert(cardTmplIdFieldName,QVariant());
+    tmpl.insert(cardTmplDataFieldName,QVariant());
+    return tmpl;
 }
 
 void CardFactory::readCardtypes(QString dir_name)
