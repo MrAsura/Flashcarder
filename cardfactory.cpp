@@ -16,6 +16,21 @@ const QString CardFactory::cardTmplDataFieldName = "data";
 
 CardFactory::CardFactory(): cardtypes_()
 {
+    //Load card types
+    loadCardTemplates();
+}
+
+QVariantMap CardFactory::getTypeTemplate(c_type_id_t type) const
+{
+    return templates_[type];
+}
+
+QVariantMap CardFactory::getCardTemplate(c_type_id_t type) const
+{
+    QVariantMap tmpl = getCardBaseTemplate();
+    tmpl[cardTmplIdFieldName] = type;
+    tmpl[cardTmplDataFieldName] = getTypeTemplate(type);
+    return tmpl;
 }
 
 QJsonDocument CardFactory::readJson(QString file)
@@ -27,6 +42,11 @@ QJsonDocument CardFactory::readJson(QString file)
     json_doc = QJsonDocument::fromJson(json.readAll());
 
     return json_doc;
+}
+
+void CardFactory::addCardTypeName(c_type_id_t type_id, QString name)
+{
+    cardtypenames_.insert(type_id,name);
 }
 
 void CardFactory::addUrl(c_type_id_t type_id, QUrl url)
@@ -43,9 +63,13 @@ CardFactory &CardFactory::getInstance()
 
 QVariantMap CardFactory::getCardBaseTemplate()
 {
-    QVariantMap tmpl();
-    tmpl.insert(cardTmplIdFieldName,QVariant());
-    tmpl.insert(cardTmplDataFieldName,QVariant());
+    static QVariantMap tmpl;
+    if( tmpl.empty() ){
+        c_type_id_t def_val_id;
+        QVariantMap def_val_data;
+        tmpl.insert(cardTmplIdFieldName,def_val_id);
+        tmpl.insert(cardTmplDataFieldName,def_val_data);
+    }
     return tmpl;
 }
 
@@ -80,10 +104,15 @@ QStringList CardFactory::getFields(QString cardtype)
     return cardtypes_.value(cardtype);
 }
 
-void CardFactory::registerType(c_type_id_t type_id, CardFactory::constructor_t func, QUrl url, QVariantMap templ )
+void CardFactory::registerType(c_type_id_t type_id, CardFactory::constructor_t func, QUrl url, QVariantMap templ , QString name)
 {
     addUrl(type_id, url);
     addConstructor(type_id,func);
+
+    //If name is not set, attempt to cast type_id to string
+    name = name.isEmpty() ? QVariant(type_id).toString() : name;
+    addCardTypeName(type_id, name);
+
     if( templ.empty() ){
         //Load template from url
         //Load build in card types. Use the constructor for the base card for types loaded from qmls
@@ -92,14 +121,15 @@ void CardFactory::registerType(c_type_id_t type_id, CardFactory::constructor_t f
         QQmlComponent comp(&engine, url);
         QObject* call_obj = comp.create();
 
-        QMetaObject::invokeMethod(call_obj,"getTemplate", Q_RETURN_ARG(QVariantMap,templ));
-        addTemplate(type_id, templ);
+        QVariant ret_val;
+        QMetaObject::invokeMethod(call_obj,"getTemplate", Q_RETURN_ARG(QVariant, ret_val));
+        templ = ret_val.toMap();
+        //QMetaObject::invokeMethod(call_obj,"testPrint");
 
         delete call_obj;
     }
-    else {
-        addTemplate(type_id,templ);
-    }
+
+    addTemplate(type_id,templ);
 }
 
 void CardFactory::addTemplate(c_type_id_t type_id, QVariantMap templ)
@@ -125,4 +155,19 @@ void CardFactory::loadCardTemplates()
 QUrl CardFactory::getUrl(c_type_id_t type)
 {
     return urls_[type];
+}
+
+QStringList CardFactory::getCardTypeNames()
+{
+    return QStringList(cardtypenames_.values());
+}
+
+c_type_id_t CardFactory::name2id(QString name)
+{
+    return cardtypenames_.key(name);
+}
+
+QString CardFactory::id2name(c_type_id_t id)
+{
+    return cardtypenames_.value(id);
 }

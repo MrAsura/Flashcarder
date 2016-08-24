@@ -27,10 +27,12 @@ private slots:
 
     void on_actionChange_Directory_triggered();
 
+    void on_actionEdit_Create_Cardlists_triggered();
+
 private:
     Ui::MainWindow *ui;
 
-    QString def_dir_;
+    QString def_dir_; //TODO: Use a proper dir type?
     QStackedWidget* cont_;
 
     QWidget* makeCardPreview(QWidget *parent);

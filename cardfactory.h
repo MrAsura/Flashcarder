@@ -44,12 +44,22 @@ public:
 
     //Register a custom card type
     //If templ is not given, url is used to get templ by loading the qml
-    void registerType( c_type_id_t type_id, constructor_t func, QUrl url, QVariantMap templ = QVariantMap());
+    void registerType( c_type_id_t type_id, constructor_t func, QUrl url, QVariantMap templ = QVariantMap(), QString name = QString());
 
     //Load card templates from qml files (in the cardtype folder etc.).
     void loadCardTemplates();
 
     QUrl getUrl(c_type_id_t type );
+
+    //Returns human readable identifiers for the card types
+    QStringList getCardTypeNames();
+
+    //Switch between card type name and id type
+    c_type_id_t name2id( QString name );
+    QString id2name(c_type_id_t id );
+
+    QVariantMap getTypeTemplate(c_type_id_t type) const; //Get type template
+    QVariantMap getCardTemplate(c_type_id_t type) const; //get type template wrapped in the base template
 
 private:
     CardFactory( CardFactory const& ) = delete;
@@ -58,12 +68,15 @@ private:
 
     QMap<QString,QStringList> cardtypes_;
 
+    //Contains card types in string format
+    QMap<c_type_id_t, QString> cardtypenames_;
     QMap<c_type_id_t, constructor_t> constructors_;
     QMap<c_type_id_t, QVariantMap> templates_;
     QMap<c_type_id_t, QUrl> urls_; //TODO: add url stuff
 
     QJsonDocument readJson( QString file ); //Reads a json file and returns it as a document
 
+    void addCardTypeName( c_type_id_t type_id, QString name );
     void addUrl( c_type_id_t type_id, QUrl url );
     void addTemplate( c_type_id_t type_id, QVariantMap templ );
     void addConstructor( c_type_id_t type_id, constructor_t func );

@@ -3,6 +3,7 @@
 #include "dictedit.h"
 #include "cardedit.h"
 #include "cardfactory.h"
+#include "cardlisteditor.h"
 
 #include <QDir>
 #include <QFileDialog>
@@ -44,6 +45,7 @@ MainWindow::MainWindow(QWidget *parent) :
     cont->addWidget( new DictEdit(cont, def_dir_) ); //Dict edit view
     cont->addWidget( new CardEdit(cont,def_dir_) ); //Card edit view
     cont->addWidget( makeCardPreview(cont) ); //Card type preview
+    cont->addWidget( new CardlistEditor(cont, def_dir_) );
 
     cont_ = cont;
     setCentralWidget(cont);
@@ -169,6 +171,7 @@ void MainWindow::reloadWidgets()
     //TODO: Add other widgets.
     cont_->findChild<DictEdit*>("DictEdit")->setDir(def_dir_);
     cont_->findChild<CardEdit*>("CardEdit")->setDir(def_dir_);
+    cont_->findChild<CardlistEditor*>("CardlistEditor")->setDir(def_dir_);
 }
 
 void MainWindow::on_actionView_Cards_triggered()
@@ -182,4 +185,10 @@ void MainWindow::on_actionChange_Directory_triggered()
     def_dir_ = getNewDir();
     reloadDir();
     reloadWidgets();
+}
+
+void MainWindow::on_actionEdit_Create_Cardlists_triggered()
+{
+    //Switch to cardlist editor widget
+    cont_->setCurrentWidget(cont_->findChild<QWidget*>("CardlistEditor"));
 }

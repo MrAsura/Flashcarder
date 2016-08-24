@@ -31,6 +31,7 @@
     <addaction name="separator"/>
     <addaction name="actionEdit_Create_Dict"/>
     <addaction name="actionEdit_Create_Cardlist"/>
+    <addaction name="actionEdit_Create_Cardlists"/>
     <addaction name="separator"/>
     <addaction name="actionCard_Preview"/>
     <addaction name="separator"/>
@@ -82,6 +83,11 @@
   <action name="actionChange_Directory">
    <property name="text">
     <string>Change Directory</string>
+   </property>
+  </action>
+  <action name="actionEdit_Create_Cardlists">
+   <property name="text">
+    <string>Edit/Create Cardlists</string>
    </property>
   </action>
  </widget>

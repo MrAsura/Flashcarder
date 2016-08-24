@@ -15,8 +15,13 @@ Rectangle{
 
     //Template for initializing this card type
     function getTemplate(){
+        console.log("Got template");
         return {word:undefined,
                 scale:1};
+    }
+
+    function testPrint(){
+        console.log("Test Print");
     }
 
     border.color: "black"
