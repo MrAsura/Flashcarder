@@ -44,14 +44,20 @@ private:
     //Holds the current list in QVariantList form
     QVariantList cur_list_;
 
+    const QByteArray INDENT = "    ";
+
     //Populate view from cur_list_ (clear old list)
     void populateCardlistView();
+    //Functions for manipulating the cardlistview
+    void addRow(int row , const QVariant &card);
+    void updateRow(int row , const QVariant &card);
+    void removeRow( int row );
 
     //Return the type id for the current combo box selection
     c_type_id_t getCurSelectedType();
 
-    //Append a card template of a given type to the cur_list_
-    void addNewCardTemplate(c_type_id_t type = c_type_id_t());
+    //Append a card template of a given type to the cur_list_ return reference to it
+    QVariant &addNewCardTemplate(c_type_id_t type = c_type_id_t());
 
     int openUnsaveWorkDialog();
 };
