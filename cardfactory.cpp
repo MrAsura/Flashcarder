@@ -2,7 +2,7 @@
 
 #include <QByteArray>
 #include <QFile>
-#include <QDir>
+
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QVariant>
@@ -17,7 +17,7 @@ const QString CardFactory::cardTmplDataFieldName = "data";
 CardFactory::CardFactory(): cardtypes_()
 {
     //Load card types
-    loadCardTemplates();
+    //loadCardTemplates();
 }
 
 QVariantMap CardFactory::getTypeTemplate(c_type_id_t type) const
@@ -59,6 +59,12 @@ CardFactory &CardFactory::getInstance()
 {
     static CardFactory fac;
     return fac;
+}
+
+void CardFactory::initialize(QDir dir)
+{
+    //Handle initialization here
+    loadCardTemplates(dir);
 }
 
 QVariantMap CardFactory::getCardBaseTemplate()
@@ -142,14 +148,22 @@ void CardFactory::addConstructor(c_type_id_t type_id, CardFactory::constructor_t
     constructors_.insert(type_id,func);
 }
 
-void CardFactory::loadCardTemplates()
+void CardFactory::loadCardTemplates( QDir dir )
 {
-    //TODO: load card templates from external qmls
+    //load card templates from external qmls
+    dir.setNameFilters(QStringList("*.qml"));
+    dir.setFilter(QDir::Files|QDir::Readable);
+    QStringList type_qmls = dir.entryList();
 
+    for( QString type_qml: type_qmls){
+        c_type_id_t type_id = type_qml.split('/').last().left(type_qml.size()-4); //Use the name of the qml file as the type id
+        registerType(type_id, &Card::createCard, QUrl::fromLocalFile(dir.absoluteFilePath(type_qml)));
+    }
+
+    //Register build in types here
     registerType("cardTypeDict",&Card::createCard,QUrl("qrc:///cardTypeDict.qml"));
     registerType("cardTypeOneB",&Card::createCard,QUrl("qrc:///cardTypeOneB.qml"));
     registerType("cardTypeOneF",&Card::createCard,QUrl("qrc:///cardTypeOneF.qml"));
-
 }
 
 QUrl CardFactory::getUrl(c_type_id_t type)

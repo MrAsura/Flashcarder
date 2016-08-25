@@ -36,7 +36,7 @@ private:
     QStackedWidget* cont_;
 
     QWidget* makeCardPreview(QWidget *parent);
-    QString getNewDir();
+    QString getNewDir(QString dir_to_ask_for = "data");
     void reloadDir(); //Update files based on def_dir_
     void reloadWidgets(); //Update widgets
 };

@@ -5,6 +5,7 @@ import QtQuick 2.0
 Rectangle{
 
     id: dictCard
+    objectName: "CardTypeDict"
 
     property string word: "word"
     property int scale: 1

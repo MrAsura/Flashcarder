@@ -34,6 +34,14 @@ MainWindow::MainWindow(QWidget *parent) :
         def_dir_ = getNewDir();
     }
 
+    //Initialize CardFactory here
+    QDir type_dir = QDir(def_dir_+"/types");
+    if( !type_dir.exists() ){
+        type_dir = QDir(getNewDir("types"));
+    }
+
+    CardFactory::getInstance().initialize(type_dir);
+
     reloadDir();
 
     //Use a stacked widget to display different views
@@ -89,11 +97,12 @@ QWidget *MainWindow::makeCardPreview( QWidget* parent )
 //    QObject* object = component.create();
 //    setCentralWidget( qobject_cast<QWidget*>(object) );
 
-    QQuickWidget* card1 = new QQuickWidget(QUrl("qrc:///cardTypeDict.qml"));
-    QQuickWidget* card2 = new QQuickWidget(QUrl("qrc:///cardTypeOneB.qml"));
-    QQuickWidget* card3 = new QQuickWidget(QUrl("qrc:///cardTypeOneF.qml"));
-    QQuickWidget* test = new QQuickWidget(QUrl("qrc:///deck.qml"));
-    QQuickWidget* loader = new QQuickWidget(QUrl("qrc:///cardLoader.qml"));
+    QQuickWidget* card1 = new QQuickWidget(QUrl("qrc:///CardTypeDict.qml"));
+    QQuickWidget* card2 = new QQuickWidget(QUrl("qrc:///CardTypeOneB.qml"));
+    QQuickWidget* card3 = new QQuickWidget(QUrl("qrc:///CardTypeOneF.qml"));
+    QQuickWidget* test = new QQuickWidget(QUrl("qrc:///Deck.qml"));
+    QQuickWidget* loader = new QQuickWidget(QUrl("qrc:///CardLoader.qml"));
+    QQuickWidget* doublecard = new QQuickWidget(QUrl("file:///G:/Tiedostoja/flashcarder/Flashcarder/data/types/CardTypeOne.qml"));
 
     //ui->centralWidget->layout()->addWidget(card1);
     //ui->centralWidget->layout()->addWidget(card2);
@@ -108,9 +117,10 @@ QWidget *MainWindow::makeCardPreview( QWidget* parent )
     lo->addWidget(card3,2,2,1,1);
     lo->addWidget(test,1,2,1,1);
     lo->addWidget(loader,2,3,1,1);
+    lo->addWidget(doublecard,3,1,1,1);
 
     //Load a card as a test in the card loader
-    QVariant url = "qrc:///cardTypeOneB.qml";
+    QVariant url = "qrc:///CardTypeOneB.qml";
     QVariantMap param;
     param.insert("kanji","+");
     param.insert("num",50);
@@ -124,9 +134,9 @@ QWidget *MainWindow::makeCardPreview( QWidget* parent )
     return wid;
 }
 
-QString MainWindow::getNewDir()
+QString MainWindow::getNewDir(QString dir_to_ask_for)
 {
-    return QFileDialog::getExistingDirectory(this, tr("Choose data directory"),
+    return QFileDialog::getExistingDirectory(this, "Choose "+dir_to_ask_for+" directory",
                                              "../",
                                              QFileDialog::ShowDirsOnly
                                              | QFileDialog::DontResolveSymlinks);

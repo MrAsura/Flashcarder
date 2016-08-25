@@ -1,9 +1,9 @@
 <RCC>
     <qresource prefix="/">
-        <file>cardTypeDict.qml</file>
-        <file>cardTypeOneB.qml</file>
-        <file>cardTypeOneF.qml</file>
-        <file>deck.qml</file>
-        <file>cardLoader.qml</file>
+        <file>CardTypeDict.qml</file>
+        <file>CardTypeOneB.qml</file>
+        <file>CardTypeOneF.qml</file>
+        <file>Deck.qml</file>
+        <file>CardLoader.qml</file>
     </qresource>
 </RCC>

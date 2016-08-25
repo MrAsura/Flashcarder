@@ -2,6 +2,7 @@ import QtQuick 2.0
 
 Rectangle {
     id: cardTypeOneF
+    objectName: "CardTypeOneF"
 
     property int scale: 1
     property string word: "Below"
@@ -11,6 +12,8 @@ Rectangle {
     function init( param ){
         word = param["word"];
         desc = param["desc"];
+        band = param["band"];
+        scale = param["scale"];
     }
 
     //Template for initializing this card type

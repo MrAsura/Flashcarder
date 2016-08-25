@@ -3,6 +3,7 @@ import QtQuick 2.0
 Rectangle {
 
     id: cardTypeOneB
+    objectName: "CardTypeOneB"
 
     property int scale: 1
     property string kanji: "下"
@@ -11,6 +12,7 @@ Rectangle {
     function init( param ){
         kanji = param["kanji"];
         num = param["num"];
+        scale = param["scale"];
     }
 
     //Template for initializing this card type

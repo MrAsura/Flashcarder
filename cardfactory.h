@@ -9,6 +9,7 @@
 #include <QJsonDocument>
 #include <QVariant>
 #include <QVariantMap>
+#include <QDir>
 
 #include "global.h"
 
@@ -18,6 +19,7 @@ class CardFactory
 {
 public:
     static CardFactory& getInstance();
+    void initialize(QDir dir ); //Initialize factory before using
 
     static const QString CardTypeID;
     static const QString CardTypeFields;
@@ -47,7 +49,7 @@ public:
     void registerType( c_type_id_t type_id, constructor_t func, QUrl url, QVariantMap templ = QVariantMap(), QString name = QString());
 
     //Load card templates from qml files (in the cardtype folder etc.).
-    void loadCardTemplates();
+    void loadCardTemplates(QDir dir );
 
     QUrl getUrl(c_type_id_t type );
 
