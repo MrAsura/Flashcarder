@@ -10,6 +10,10 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QListWidgetItem>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QLineEdit>
+#include <QLabel>
 
 #include <algorithm>
 
@@ -59,6 +63,12 @@ void CardlistEditor::on_newListBtn_clicked()
 
 void CardlistEditor::on_newCardBtn_clicked()
 {
+    //If new card button is pressed when no list exists, generate a new list instead
+    if( cur_list_.empty() ){
+        on_newListBtn_clicked();
+        return;
+    }
+
     //Add a new card template for the currently selected card type
     //New card is added to the second to last row and currently count() is the last index in the new list
     int new_row = ui->curCardlistView->count()-1;
@@ -72,7 +82,9 @@ void CardlistEditor::on_newCardBtn_clicked()
 
 void CardlistEditor::populateCardlistView()
 {
+    ui->curCardlistView->setCurrentRow(-1); //Make sure cur_list_ is not indexed when clear triggers a selection change event
     ui->curCardlistView->clear();
+
 
     //TODO: Try to make it so it doesn't breake if qt's json indenting etc. changes
     QByteArray list_json = QJsonDocument::fromVariant(QVariant::fromValue(cur_list_)).toJson();
@@ -159,6 +171,105 @@ void CardlistEditor::removeRow(int row)
     delete item;
 }
 
+void CardlistEditor::populateFieldEditArea(const QVariantMap& card)
+{
+    //Build a new widget that holds the final content
+    QWidget* base = new QWidget();
+    base->setObjectName(ui->fieldEditArea->widget()->objectName());
+
+    //Base layout
+    QVBoxLayout* base_lo = new QVBoxLayout();
+    base_lo->setObjectName("fieldEditLo");
+
+    //Populate layout
+    QVariant fields = QVariant::fromValue(card);
+    insertFields(base_lo, fields);
+
+    //Finally set new widget ( destroys old content )
+    base->setLayout(base_lo);
+    ui->fieldEditArea->setWidget(base);
+}
+
+void CardlistEditor::insertFields(QLayout *lo, QVariant &fields)
+{
+    //TODO: Make a less
+    //Loop over all the fields and add a new widget for each
+    //Field widget contains a lo with a field name label and a text edit for the value
+    //If the value is not a simple type (string, int, etc.) recursively call insertFields
+    //If fields is a QVariantMap use keys as the field names,
+    //but if it is a QVariantList use the index as the field label name.
+    if( fields.canConvert<QVariantMap>() )
+    {
+        QVariantMap field_map = fields.toMap();
+        //Loop over fields
+        for( QString key: field_map.keys() )
+        {
+            //Init new field base
+            QWidget* field_base = newFieldBase(FNAMEFORMAT.arg(key),FLABELOBJFORMAT.arg(key));
+
+            //Add field's value. Layout already set in field_base
+            insertFields(field_base->layout(), field_map[key]);
+            field_base->setLayout(field_base->layout()); //TODO: Necessary?
+
+            //Put it all together
+            lo->addWidget(field_base);
+        }
+
+        return;
+    }
+    else if( fields.canConvert<QVariantList>() )
+    {
+        QVariantList field_list = fields.toList();
+        //Loop over content
+        for( int ind = 0; field_list.size(); ind++ )
+        {
+            //Get new field base
+            QWidget* field_base = newFieldBase(FINDNAMEFORMAT.arg(ind),FINDLABELOBJFORMAT.arg(ind));
+
+            //Add field's value
+            insertFields(field_base->layout(), field_list[ind]);
+
+            //Put it all together
+            lo->addWidget(field_base);
+        }
+
+        return;
+    }
+
+    //If we make it here, fields should contain a simple type
+    //Needs to be convertable to string else use empty string
+    if ( !fields.canConvert<QString>()) {
+        //Should not end here. TODO: throw exception?
+        qDebug((QString("Inproper type: ")+ QString(fields.typeName())).toLocal8Bit());
+        //return;
+    }
+
+    //Insert a line edit to the field with the value given by fields
+    QLineEdit* val_edit = new QLineEdit();
+    val_edit->setObjectName(FVALEDITOBJNAME);
+    val_edit->setText(fields.toString());
+
+    //Add to layout
+    lo->addWidget(val_edit);
+}
+
+QWidget *CardlistEditor::newFieldBase(QString label_text, QString label_obj_name, QString field_obj_name, QString field_lo_obj_name)
+{
+    //Create a base widget to hold the current field and its line edit (in a layout)
+    QWidget* field_base = new QWidget();
+    QHBoxLayout* field_base_lo = new QHBoxLayout();
+    field_base->setObjectName(field_obj_name);
+    field_base_lo->setObjectName(field_lo_obj_name);
+
+    //Add labe with field name
+    QLabel* field_name = new QLabel(label_text);
+    field_name->setObjectName(label_obj_name);
+    field_base_lo->addWidget(field_name);
+    field_base->setLayout(field_base_lo);
+
+    return field_base;
+}
+
 c_type_id_t CardlistEditor::getCurSelectedType()
 {
     return CardFactory::getInstance().name2id(ui->regCTypes->currentText());
@@ -240,4 +351,30 @@ void CardlistEditor::on_removeBtn_clicked()
     removeRow(row);
 
     cur_list_saved_ = false;
+}
+
+void CardlistEditor::on_curCardlistView_itemSelectionChanged()
+{
+    //Get currently selected card's ind
+    int ind = ui->curCardlistView->currentRow() - 1;
+
+    if( ind >= 0 && ind < ui->curCardlistView->count() - 2){
+        QVariantMap card = cur_list_[ind].toMap();
+        populateFieldEditArea(card);
+
+        //Disaple editing on the card type field
+        QWidget* c_type_id_label = ui->fieldEditArea->widget()->findChild<QWidget*>(FLABELOBJFORMAT.arg(CardFactory::cardTmplIdFieldName));
+        if( c_type_id_label ){
+            QWidget* c_type_id_val = c_type_id_label->parentWidget()->findChild<QLineEdit*>(FVALEDITOBJNAME);
+            if( c_type_id_val ){
+                c_type_id_val->setEnabled(false);
+            }
+        }
+    }
+    else{
+        //No card selected, so set empty widget
+        QWidget* empty = new QWidget();
+        empty->setObjectName("fieldEditContents");
+        ui->fieldEditArea->setWidget(empty);
+    }
 }

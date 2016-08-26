@@ -14,6 +14,34 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="2" column="1">
+    <layout class="QHBoxLayout" name="cardlistEditControl">
+     <item>
+      <widget class="QPushButton" name="saveValBtn">
+       <property name="text">
+        <string>Save Values</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="newCardBtn">
+       <property name="text">
+        <string>New Card</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="removeBtn">
+       <property name="text">
+        <string>Remove Card</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="0" column="0" rowspan="3">
+    <widget class="QListWidget" name="curCardlistView"/>
+   </item>
    <item row="0" column="1">
     <layout class="QGridLayout" name="cardlistControl">
      <item row="1" column="2">
@@ -57,7 +85,7 @@
      <property name="widgetResizable">
       <bool>true</bool>
      </property>
-     <widget class="QWidget" name="fieldEditContent">
+     <widget class="QWidget" name="fieldEditContents">
       <property name="geometry">
        <rect>
         <x>0</x>
@@ -66,37 +94,8 @@
         <height>404</height>
        </rect>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout_2"/>
      </widget>
     </widget>
-   </item>
-   <item row="2" column="1">
-    <layout class="QHBoxLayout" name="cardlistEditControl">
-     <item>
-      <widget class="QPushButton" name="saveValBtn">
-       <property name="text">
-        <string>Save Values</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="newCardBtn">
-       <property name="text">
-        <string>New Card</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="removeBtn">
-       <property name="text">
-        <string>Remove Card</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="0" column="0" rowspan="3">
-    <widget class="QListWidget" name="curCardlistView"/>
    </item>
   </layout>
  </widget>
