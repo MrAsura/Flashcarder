@@ -161,9 +161,9 @@ void CardFactory::loadCardTemplates( QDir dir )
     }
 
     //Register build in types here
-    registerType("cardTypeDict",&Card::createCard,QUrl("qrc:///cardTypeDict.qml"));
-    registerType("cardTypeOneB",&Card::createCard,QUrl("qrc:///cardTypeOneB.qml"));
-    registerType("cardTypeOneF",&Card::createCard,QUrl("qrc:///cardTypeOneF.qml"));
+    registerType("CardTypeDict",&Card::createCard,QUrl("qrc:///CardTypeDict.qml"));
+    registerType("CardTypeOneB",&Card::createCard,QUrl("qrc:///CardTypeOneB.qml"));
+    registerType("CardTypeOneF",&Card::createCard,QUrl("qrc:///CardTypeOneF.qml"));
 }
 
 QUrl CardFactory::getUrl(c_type_id_t type)

@@ -17,7 +17,7 @@ Rectangle{
     //Template for initializing this card type
     function getTemplate(){
         console.log("Got template");
-        return {word:undefined,
+        return {word:"",
                 scale:1};
     }
 

@@ -17,12 +17,16 @@
 
 #include <algorithm>
 
+const QString CardlistEditor::FIELDBASEOBJNAME = "fieldBase";
+const QString CardlistEditor::FIELDLOOBJNAME = "fieldBaseLo";
+
 CardlistEditor::CardlistEditor(QWidget *parent, QString def_dir) :
     QWidget(parent),
     ui(new Ui::CardlistEditor),
     def_dir_(def_dir),
     cur_file_name_(""),
     cur_list_saved_(true),
+    cur_card_saved_(true),
     cur_list_(QVariantList())
 {
     ui->setupUi(this);
@@ -45,7 +49,7 @@ void CardlistEditor::setDir(const QString &def_dir)
 
 void CardlistEditor::on_newListBtn_clicked()
 {
-    if( !cur_list_saved_ )
+    if( !cur_list_saved_ || !cur_card_saved_  )
     {
         int ret_val = openUnsaveWorkDialog();
         if( ret_val == QMessageBox::Cancel ) return;
@@ -192,7 +196,6 @@ void CardlistEditor::populateFieldEditArea(const QVariantMap& card)
 
 void CardlistEditor::insertFields(QLayout *lo, QVariant &fields)
 {
-    //TODO: Make a less
     //Loop over all the fields and add a new widget for each
     //Field widget contains a lo with a field name label and a text edit for the value
     //If the value is not a simple type (string, int, etc.) recursively call insertFields
@@ -249,6 +252,9 @@ void CardlistEditor::insertFields(QLayout *lo, QVariant &fields)
     val_edit->setObjectName(FVALEDITOBJNAME);
     val_edit->setText(fields.toString());
 
+    //Connect val edit to saved status
+    connect(val_edit, SIGNAL(textEdited(QString)), this, SLOT(set_unsaved_changes_status()));
+
     //Add to layout
     lo->addWidget(val_edit);
 }
@@ -268,6 +274,89 @@ QWidget *CardlistEditor::newFieldBase(QString label_text, QString label_obj_name
     field_base->setLayout(field_base_lo);
 
     return field_base;
+}
+
+void CardlistEditor::saveFieldValue(QWidget *base, QVariant &fields)
+{
+    //Loop over all the fields
+    //Field widget contains a lo with a field name label and a text edit for the value
+    //If the value is not a simple type (string, int, etc.) recursively call insertFields
+    //If fields is a QVariantMap use keys as the field names,
+    //but if it is a QVariantList use the index as the field label name.
+    //A simple value should mean a line edit exists with a value that is placed back to card
+    if( fields.canConvert<QVariantMap>() )
+    {
+        QVariantMap field_map = fields.toMap();
+        //Loop over fields
+        for( QString key: field_map.keys() )
+        {
+            //Find base field widget for the field relevant to key-field
+            QLabel* field_label = base->findChild<QLabel*>(FLABELOBJFORMAT.arg(key));
+            if( field_label ){
+                saveFieldValue(field_label->parentWidget(), field_map[key]);
+            }
+            else{
+                qDebug("Couldn't find field label");
+            }
+        }
+
+        //Need to update fields with the new field map
+        fields.setValue(field_map);
+
+        return;
+    }
+    else if( fields.canConvert<QVariantList>() )
+    {
+        QVariantList field_list = fields.toList();
+        //Loop over content
+        for( int ind = 0; field_list.size(); ind++ )
+        {
+            //Find base field widget for the field relevant to key-field
+            QLabel* field_ind_label = base->findChild<QLabel*>(FINDLABELOBJFORMAT.arg(ind));
+            if( field_ind_label ){
+                saveFieldValue(field_ind_label->parentWidget(), field_list[ind]);
+            }
+            else{
+                qDebug("Couldn't find field ind label");
+            }
+        }
+
+        //Need to update fields with the new field list
+        fields.setValue(field_list);
+
+        return;
+    }
+
+    //If we make it here, fields should contain a simple type
+    //Find the line edit and get new value. Try to convert to the card type
+    QLineEdit* new_val = base->findChild<QLineEdit*>(FVALEDITOBJNAME);
+    if(new_val){
+        bool ok = true;
+        switch (fields.type()) {
+        case QVariant::Int:
+            fields.setValue(new_val->text().toInt(&ok));
+            break;
+        case QVariant::String:
+            fields.setValue(new_val->text());
+            break;
+        case QVariant::Double:
+            fields.setValue(new_val->text().toDouble(&ok));
+            break;
+        case QVariant::Bool:
+            fields.setValue(new_val->text().toLower()=="true"?true:false);
+            break;
+        default:
+            qDebug("Uncaught type");//TODO: Throw error?
+            break;
+        }
+        if(!ok){
+            qDebug("Faild to convert to type: ");
+            qDebug(fields.typeName());
+        }
+    }
+    else{
+        qDebug("Couldn't find line edit");
+    }
 }
 
 c_type_id_t CardlistEditor::getCurSelectedType()
@@ -294,7 +383,7 @@ int CardlistEditor::openUnsaveWorkDialog()
 
 void CardlistEditor::on_openFileBtn_clicked()
 {
-    if( !cur_list_saved_ )
+    if( !cur_list_saved_ || !cur_card_saved_  )
     {
         int ret_val = openUnsaveWorkDialog();
         if( ret_val == QMessageBox::Cancel ) return;
@@ -334,11 +423,19 @@ void CardlistEditor::on_saveFileBtn_clicked()
 void CardlistEditor::on_saveValBtn_clicked()
 {
     int row = ui->curCardlistView->currentRow();
+    int ind = row - 1;
 
-    //Update the row whose value has been changed
-    //updateRow(row);
+    if( ind >= 0 && ind < ui->curCardlistView->count() - 2)
+    {
+        //Update val of cur_list_
+        saveFieldValue(ui->fieldEditArea->widget(), cur_list_[ind]);
 
-    cur_list_saved_ = false;
+        //Update the row whose value has been changed
+        updateRow(row, cur_list_[ind]);
+
+        cur_list_saved_ = false;
+        cur_card_saved_ = true;
+    }
 }
 
 void CardlistEditor::on_removeBtn_clicked()
@@ -355,6 +452,8 @@ void CardlistEditor::on_removeBtn_clicked()
 
 void CardlistEditor::on_curCardlistView_itemSelectionChanged()
 {
+    //TODO: Open a confirmation dialog if fields have been edited but not saved. Need to do somewhere else?
+
     //Get currently selected card's ind
     int ind = ui->curCardlistView->currentRow() - 1;
 
@@ -377,4 +476,9 @@ void CardlistEditor::on_curCardlistView_itemSelectionChanged()
         empty->setObjectName("fieldEditContents");
         ui->fieldEditArea->setWidget(empty);
     }
+}
+
+void CardlistEditor::set_unsaved_changes_status()
+{
+    cur_card_saved_ = false;
 }

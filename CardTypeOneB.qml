@@ -17,8 +17,8 @@ Rectangle {
 
     //Template for initializing this card type
     function getTemplate(){
-        return {kanji:undefined,
-                num:undefined,
+        return {kanji:"",
+                num:0,
                 scale:1};
     }
 

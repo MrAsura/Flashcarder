@@ -18,8 +18,8 @@ Rectangle {
 
     //Template for initializing this card type
     function getTemplate(){
-        return {word:undefined,
-                desc:undefined,
+        return {word:"",
+                desc:"",
                 scale:1,
                 band:50};
     }

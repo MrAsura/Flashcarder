@@ -36,8 +36,7 @@ FORMS    += mainwindow.ui \
     cardedit.ui \
     cardlisteditor.ui
 
-RESOURCES += \
-    qml.qrc
+RESOURCES += qml.qrc
 
 DISTFILES += \
     data/types/CardTypeOne.qml

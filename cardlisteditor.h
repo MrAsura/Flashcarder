@@ -37,12 +37,15 @@ private slots:
 
     void on_curCardlistView_itemSelectionChanged();
 
+    void set_unsaved_changes_status(); //Sets cur_card_saved_ to false
+
 private:
     Ui::CardlistEditor *ui;
 
     QString def_dir_;
     QString cur_file_name_;
     bool cur_list_saved_; //Track if progress has been saved
+    bool cur_card_saved_; //Check if currently selected card has altered values
 
     //Holds the current list in QVariantList form
     QVariantList cur_list_;
@@ -53,6 +56,8 @@ private:
     const QString FINDLABELOBJFORMAT = "indLabel%1";
     const QString FINDNAMEFORMAT = "Index %1: ";
     const QString FVALEDITOBJNAME = "fieldValEdit";
+    static const QString FIELDBASEOBJNAME;
+    static const QString FIELDLOOBJNAME;
 
     //Populate view from cur_list_ (clear old list)
     void populateCardlistView();
@@ -65,7 +70,9 @@ private:
     //Add fields based on the given card to the field edit area
     void populateFieldEditArea(const QVariantMap &card);
     void insertFields( QLayout* lo, QVariant &fields );
-    QWidget* newFieldBase( QString label_text, QString label_obj_name, QString field_obj_name = "FieldBase", QString field_lo_obj_name = "FiedlBaseLo" );
+    QWidget* newFieldBase( QString label_text, QString label_obj_name, QString field_obj_name = FIELDBASEOBJNAME, QString field_lo_obj_name = FIELDLOOBJNAME );
+
+    void saveFieldValue(QWidget *base, QVariant &fields); //Save values from the field line edits back to card.
 
     //Return the type id for the current combo box selection
     c_type_id_t getCurSelectedType();
