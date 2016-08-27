@@ -46,7 +46,8 @@ public:
 
     //Register a custom card type
     //If templ is not given, url is used to get templ by loading the qml
-    void registerType( c_type_id_t type_id, constructor_t func, QUrl url, QVariantMap templ = QVariantMap(), QString name = QString());
+    //If type_id is not given, use the object name in the qml as the type_id. Use object name as the type id name if name is not given.
+    void registerType( QUrl url, constructor_t func, c_type_id_t type_id = c_type_id_t(), QVariantMap templ = QVariantMap(), QString name = QString() );
 
     //Load card templates from qml files (in the cardtype folder etc.).
     void loadCardTemplates(QDir dir );

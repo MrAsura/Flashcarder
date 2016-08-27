@@ -33,6 +33,7 @@ private:
     Ui::MainWindow *ui;
 
     QString def_dir_; //TODO: Use a proper dir type?
+    QString def_type_dir_;
     QStackedWidget* cont_;
 
     QWidget* makeCardPreview(QWidget *parent);

@@ -110,16 +110,9 @@ QStringList CardFactory::getFields(QString cardtype)
     return cardtypes_.value(cardtype);
 }
 
-void CardFactory::registerType(c_type_id_t type_id, CardFactory::constructor_t func, QUrl url, QVariantMap templ , QString name)
+void CardFactory::registerType( QUrl url, constructor_t func, c_type_id_t type_id , QVariantMap templ , QString name )
 {
-    addUrl(type_id, url);
-    addConstructor(type_id,func);
-
-    //If name is not set, attempt to cast type_id to string
-    name = name.isEmpty() ? QVariant(type_id).toString() : name;
-    addCardTypeName(type_id, name);
-
-    if( templ.empty() ){
+    if( templ.empty() || name.isEmpty() ){
         //Load template from url
         //Load build in card types. Use the constructor for the base card for types loaded from qmls
         QQmlEngine engine; //Create gml engine for getting templates from the qml files
@@ -127,14 +120,28 @@ void CardFactory::registerType(c_type_id_t type_id, CardFactory::constructor_t f
         QQmlComponent comp(&engine, url);
         QObject* call_obj = comp.create();
 
-        QVariant ret_val;
-        QMetaObject::invokeMethod(call_obj,"getTemplate", Q_RETURN_ARG(QVariant, ret_val));
-        templ = ret_val.toMap();
-        //QMetaObject::invokeMethod(call_obj,"testPrint");
-
+        if(templ.empty()){
+            QVariant ret_val;
+            QMetaObject::invokeMethod(call_obj,"getTemplate", Q_RETURN_ARG(QVariant, ret_val));
+            templ = ret_val.toMap();
+            //QMetaObject::invokeMethod(call_obj,"testPrint");
+        }
+        if(name.isEmpty()){
+            name = call_obj->objectName();
+        }
         delete call_obj;
     }
+    //If name is not set, attempt to cast type_id to string
+    name = name.isEmpty()&&type_id!=c_type_id_t() ? QVariant(type_id).toString() : name;
+    type_id = type_id==c_type_id_t()&&!name.isEmpty() ? c_type_id_t(name) : type_id;
+    if( type_id == c_type_id_t() || name.isEmpty() ){
+        //Error setting name/type_id
+        qDebug("Error getting type id/name"); //TODO: Throw error etc.?
+    }
 
+    addUrl(type_id, url);
+    addConstructor(type_id,func);
+    addCardTypeName(type_id, name);
     addTemplate(type_id,templ);
 }
 
@@ -156,14 +163,14 @@ void CardFactory::loadCardTemplates( QDir dir )
     QStringList type_qmls = dir.entryList();
 
     for( QString type_qml: type_qmls){
-        c_type_id_t type_id = type_qml.split('/').last().left(type_qml.size()-4); //Use the name of the qml file as the type id
-        registerType(type_id, &Card::createCard, QUrl::fromLocalFile(dir.absoluteFilePath(type_qml)));
+        //c_type_id_t type_id = type_qml.split('/').last().left(type_qml.size()-4); //Use the name of the qml file as the type id
+        registerType(QUrl::fromLocalFile(dir.absoluteFilePath(type_qml)), &Card::createCard );
     }
 
     //Register build in types here
-    registerType("CardTypeDict",&Card::createCard,QUrl("qrc:///CardTypeDict.qml"));
-    registerType("CardTypeOneB",&Card::createCard,QUrl("qrc:///CardTypeOneB.qml"));
-    registerType("CardTypeOneF",&Card::createCard,QUrl("qrc:///CardTypeOneF.qml"));
+    registerType(QUrl("qrc:///CardTypeDict.qml"), &Card::createCard );
+    registerType(QUrl("qrc:///CardTypeOneF.qml"), &Card::createCard );
+    registerType(QUrl("qrc:///CardTypeOneB.qml"), &Card::createCard );
 }
 
 QUrl CardFactory::getUrl(c_type_id_t type)

@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     def_dir_(""),
+    def_type_dir_(""),
     cont_()
 {
     ui->setupUi(this);
@@ -40,6 +41,7 @@ MainWindow::MainWindow(QWidget *parent) :
         type_dir = QDir(getNewDir("types"));
     }
 
+    def_type_dir_ = type_dir.absolutePath();
     CardFactory::getInstance().initialize(type_dir);
 
     reloadDir();
@@ -102,7 +104,7 @@ QWidget *MainWindow::makeCardPreview( QWidget* parent )
     QQuickWidget* card3 = new QQuickWidget(QUrl("qrc:///CardTypeOneF.qml"));
     QQuickWidget* test = new QQuickWidget(QUrl("qrc:///Deck.qml"));
     QQuickWidget* loader = new QQuickWidget(QUrl("qrc:///CardLoader.qml"));
-    QQuickWidget* doublecard = new QQuickWidget(QUrl("file:///G:/Tiedostoja/flashcarder/Flashcarder/data/types/CardTypeOne.qml"));
+    QQuickWidget* doublecard = new QQuickWidget(QUrl::fromLocalFile(def_type_dir_+"/CardTypeOne.qml"));
 
     //ui->centralWidget->layout()->addWidget(card1);
     //ui->centralWidget->layout()->addWidget(card2);
