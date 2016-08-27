@@ -18,7 +18,10 @@
 #include <algorithm>
 
 const QString CardlistEditor::FIELDBASEOBJNAME = "fieldBase";
+const QString CardlistEditor::FIELDVALBASEOBJNAME = "fieldValBase";
 const QString CardlistEditor::FIELDLOOBJNAME = "fieldBaseLo";
+const QString CardlistEditor::FIELDVALLOOBJNAME = "fieldVALBaseLo";
+
 
 CardlistEditor::CardlistEditor(QWidget *parent, QString def_dir) :
     QWidget(parent),
@@ -211,8 +214,13 @@ void CardlistEditor::insertFields(QLayout *lo, QVariant &fields)
             QWidget* field_base = newFieldBase(FNAMEFORMAT.arg(key),FLABELOBJFORMAT.arg(key));
 
             //Add field's value. Layout already set in field_base
-            insertFields(field_base->layout(), field_map[key]);
-            field_base->setLayout(field_base->layout()); //TODO: Necessary?
+            QWidget* field_val = field_base->findChild<QWidget*>(FIELDVALBASEOBJNAME);
+            if( field_val ){
+                insertFields(field_val->layout(), field_map[key]);
+            }
+            else{
+                qDebug("Couldn't find field val widget"); //TODO: throw error etc.
+            }
 
             //Put it all together
             lo->addWidget(field_base);
@@ -229,8 +237,14 @@ void CardlistEditor::insertFields(QLayout *lo, QVariant &fields)
             //Get new field base
             QWidget* field_base = newFieldBase(FINDNAMEFORMAT.arg(ind),FINDLABELOBJFORMAT.arg(ind));
 
-            //Add field's value
-            insertFields(field_base->layout(), field_list[ind]);
+            //Add field's value. Layout already set in field_base
+            QWidget* field_val = field_base->findChild<QWidget*>(FIELDVALBASEOBJNAME);
+            if( field_val ){
+                insertFields(field_val->layout(), field_list[ind]);
+            }
+            else{
+                qDebug("Couldn't find field val widget"); //TODO: throw error etc.
+            }
 
             //Put it all together
             lo->addWidget(field_base);
@@ -259,18 +273,27 @@ void CardlistEditor::insertFields(QLayout *lo, QVariant &fields)
     lo->addWidget(val_edit);
 }
 
-QWidget *CardlistEditor::newFieldBase(QString label_text, QString label_obj_name, QString field_obj_name, QString field_lo_obj_name)
+QWidget *CardlistEditor::newFieldBase(QString label_text, QString label_obj_name, QString field_obj_name, QString field_val_obj_name, QString field_lo_obj_name, QString field_val_lo_obj_name )
 {
-    //Create a base widget to hold the current field and its line edit (in a layout)
+    //Create a base widget to hold the current field label and its respective field val widget (in a layout)
+    //We add a blank widget to the field val "slot" since the line edit is added later
     QWidget* field_base = new QWidget();
+    QWidget* field_val_base = new QWidget();
     QHBoxLayout* field_base_lo = new QHBoxLayout();
+    QVBoxLayout* field_val_base_lo = new QVBoxLayout();
     field_base->setObjectName(field_obj_name);
+    field_val_base->setObjectName(field_val_obj_name);
     field_base_lo->setObjectName(field_lo_obj_name);
+    field_val_base_lo->setObjectName(field_val_lo_obj_name);
 
-    //Add labe with field name
+    //Add labe with field name and field val
     QLabel* field_name = new QLabel(label_text);
     field_name->setObjectName(label_obj_name);
     field_base_lo->addWidget(field_name);
+    field_base_lo->addWidget(field_val_base);
+
+    //Set layouts
+    field_val_base->setLayout(field_val_base_lo);
     field_base->setLayout(field_base_lo);
 
     return field_base;

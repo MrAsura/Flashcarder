@@ -57,7 +57,9 @@ private:
     const QString FINDNAMEFORMAT = "Index %1: ";
     const QString FVALEDITOBJNAME = "fieldValEdit";
     static const QString FIELDBASEOBJNAME;
+    static const QString FIELDVALBASEOBJNAME;
     static const QString FIELDLOOBJNAME;
+    static const QString FIELDVALLOOBJNAME;
 
     //Populate view from cur_list_ (clear old list)
     void populateCardlistView();
@@ -70,7 +72,11 @@ private:
     //Add fields based on the given card to the field edit area
     void populateFieldEditArea(const QVariantMap &card);
     void insertFields( QLayout* lo, QVariant &fields );
-    QWidget* newFieldBase( QString label_text, QString label_obj_name, QString field_obj_name = FIELDBASEOBJNAME, QString field_lo_obj_name = FIELDLOOBJNAME );
+    QWidget* newFieldBase(QString label_text, QString label_obj_name,
+                          QString field_obj_name = FIELDBASEOBJNAME,
+                          QString field_val_obj_name = FIELDVALBASEOBJNAME,
+                          QString field_lo_obj_name = FIELDLOOBJNAME ,
+                          QString field_val_lo_obj_name = FIELDVALLOOBJNAME);
 
     void saveFieldValue(QWidget *base, QVariant &fields); //Save values from the field line edits back to card.
 
