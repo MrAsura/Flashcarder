@@ -20,7 +20,8 @@ SOURCES += main.cpp\
     cardfactory.cpp \
     cardedit.cpp \
     card.cpp \
-    cardlisteditor.cpp
+    cardlisteditor.cpp \
+    cardviewer.cpp
 
 HEADERS  += mainwindow.h \
     dictedit.h \
@@ -29,12 +30,14 @@ HEADERS  += mainwindow.h \
     cardfactory.h \
     cardedit.h \
     global.h \
-    cardlisteditor.h
+    cardlisteditor.h \
+    cardviewer.h
 
 FORMS    += mainwindow.ui \
     dictedit.ui \
     cardedit.ui \
-    cardlisteditor.ui
+    cardlisteditor.ui \
+    cardviewer.ui
 
 RESOURCES += qml.qrc
 

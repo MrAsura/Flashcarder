@@ -39,6 +39,9 @@ public:
 
 private:
 
+    Cardlist(Cardlist const&) = delete;
+    void operator=(Cardlist&) = delete;
+
     //Internal data structure
     struct Container{
         Container* next;

@@ -10,6 +10,7 @@
 #include <QVariant>
 #include <QVariantMap>
 #include <QDir>
+#include <memory>
 
 #include "global.h"
 
@@ -27,6 +28,7 @@ public:
     //Used for generic cardlists
     static const QString cardTmplIdFieldName;
     static const QString cardTmplDataFieldName;
+    static const QString cardTmplKeywordFieldName;
     //Returns the base template for a card.
     //Contains the card type (cardTmplIdFieldName) and
     //the data (cardTmplDataFieldName) for the given type
@@ -36,10 +38,7 @@ public:
     typedef Card*(*constructor_t)(c_type_id_t, QVariantMap, QObject*, QStringList);
 
     //Get a card list from a data file
-    Cardlist getCardlist( QString filename );
-
-    QString readDataFile( QString filename ); //Read either a xml or a json file and return it as a string
-    bool writeDataFile( QString data, QString filename ); //write the given data to a file
+    std::shared_ptr<Cardlist> getCardlist(QString filename , QObject *context = nullptr);
 
     void readCardtypes(QString dir_name);
     QStringList getFields( QString cardtype );
@@ -58,8 +57,8 @@ public:
     QStringList getCardTypeNames();
 
     //Switch between card type name and id type
-    c_type_id_t name2id( QString name );
-    QString id2name(c_type_id_t id );
+    c_type_id_t name2id( QString name ) const;
+    QString id2name(c_type_id_t id ) const;
 
     QVariantMap getTypeTemplate(c_type_id_t type) const; //Get type template
     QVariantMap getCardTemplate(c_type_id_t type) const; //get type template wrapped in the base template
@@ -77,12 +76,18 @@ private:
     QMap<c_type_id_t, QVariantMap> templates_;
     QMap<c_type_id_t, QUrl> urls_; //TODO: add url stuff
 
-    QJsonDocument readJson( QString file ); //Reads a json file and returns it as a document
+    bool isRegisteredType( c_type_id_t type_id );
+
+    QJsonDocument readJson(QString filename ); //Reads a json file and returns it as a document
+    //QString readDataFile( QString filename ); //a file and return it as a string
+    //bool writeDataFile( QString data, QString filename ); //write the given data to a file
 
     void addCardTypeName( c_type_id_t type_id, QString name );
     void addUrl( c_type_id_t type_id, QUrl url );
     void addTemplate( c_type_id_t type_id, QVariantMap templ );
     void addConstructor( c_type_id_t type_id, constructor_t func );
+
+    constructor_t getConstructor( c_type_id_t type_id);
 };
 
 #endif // CARDFACTORY_H

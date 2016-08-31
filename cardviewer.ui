@@ -1,21 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <author/>
- <comment/>
- <exportmacro/>
  <class>CardViewer</class>
- <widget name="CardViewer" class="QWidget">
+ <widget class="QWidget" name="CardViewer">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>991</width>
+    <height>540</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="1,10">
+   <item>
+    <layout class="QHBoxLayout" name="controlLo">
+     <item>
+      <widget class="QPushButton" name="leftBtn">
+       <property name="text">
+        <string>&lt;--</string>
+       </property>
+       <property name="icon">
+        <iconset theme="SP_ArrowLeft"/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="flipBtn">
+       <property name="text">
+        <string>Flip</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="rightBtn">
+       <property name="text">
+        <string>--&gt;</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="cardCountLabel">
+       <property name="text">
+        <string>0/0</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QQuickWidget" name="cardViewWidget">
+     <property name="autoFillBackground">
+      <bool>true</bool>
+     </property>
+     <property name="resizeMode">
+      <enum>QQuickWidget::SizeRootObjectToView</enum>
+     </property>
+    </widget>
+   </item>
+  </layout>
  </widget>
- <pixmapfunction/>
+ <customwidgets>
+  <customwidget>
+   <class>QQuickWidget</class>
+   <extends>QWidget</extends>
+   <header>QtQuickWidgets/QQuickWidget</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
  <connections/>
 </ui>

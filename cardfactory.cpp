@@ -13,11 +13,17 @@ const QString CardFactory::CardTypeID = "cardtypeName";
 const QString CardFactory::CardTypeFields = "fieldNames";
 const QString CardFactory::cardTmplIdFieldName = "cardType";
 const QString CardFactory::cardTmplDataFieldName = "data";
+const QString CardFactory::cardTmplKeywordFieldName = "keywords";
 
 CardFactory::CardFactory(): cardtypes_()
 {
     //Load card types
     //loadCardTemplates();
+}
+
+bool CardFactory::isRegisteredType(c_type_id_t type_id)
+{
+    return cardtypenames_.contains(type_id);
 }
 
 QVariantMap CardFactory::getTypeTemplate(c_type_id_t type) const
@@ -28,14 +34,14 @@ QVariantMap CardFactory::getTypeTemplate(c_type_id_t type) const
 QVariantMap CardFactory::getCardTemplate(c_type_id_t type) const
 {
     QVariantMap tmpl = getCardBaseTemplate();
-    tmpl[cardTmplIdFieldName] = type;
+    tmpl[cardTmplIdFieldName] = id2name(type);
     tmpl[cardTmplDataFieldName] = getTypeTemplate(type);
     return tmpl;
 }
 
-QJsonDocument CardFactory::readJson(QString file)
+QJsonDocument CardFactory::readJson(QString filename)
 {
-    QFile json(file);
+    QFile json(filename);
     QJsonDocument json_doc;
 
     json.open(QFile::ReadOnly);
@@ -73,10 +79,45 @@ QVariantMap CardFactory::getCardBaseTemplate()
     if( tmpl.empty() ){
         c_type_id_t def_val_id;
         QVariantMap def_val_data;
+        //QVariantList def_val_keywords;
         tmpl.insert(cardTmplIdFieldName,def_val_id);
         tmpl.insert(cardTmplDataFieldName,def_val_data);
+        //tmpl.insert(cardTmplKeywordFieldName, def_val_keywords);
     }
     return tmpl;
+}
+
+std::shared_ptr<Cardlist> CardFactory::getCardlist(QString filename, QObject* context)
+{
+    //Read json data from file and use values to initialize cards
+    QJsonDocument cardlist = readJson(filename);
+
+    std::shared_ptr<Cardlist> cardlist_ptr( new Cardlist() );
+
+    if( cardlist.isArray() )
+    {
+        //Loop over cards in cardlist
+        for( QJsonValueRef item: cardlist.array() )
+        {
+            if(!item.isObject()) continue; //Card needs to be an object
+
+            QJsonObject card = item.toObject();
+            c_type_id_t type_id = name2id(card[cardTmplIdFieldName].toString());
+            //Check if type_id is a known type
+            if( !isRegisteredType(type_id) )
+            {
+                continue;
+            }
+
+            QVariantMap data = QVariant(card).toMap();
+            cardlist_ptr->addCard(Cardlist::card_ptr(getConstructor(type_id)(type_id, data, context, QStringList())));
+        }
+    }
+    else{
+        //TODO: Do error stuff here
+        qDebug("File did not contain a valid Json Array");
+    }
+    return cardlist_ptr;
 }
 
 void CardFactory::readCardtypes(QString dir_name)
@@ -155,6 +196,11 @@ void CardFactory::addConstructor(c_type_id_t type_id, CardFactory::constructor_t
     constructors_.insert(type_id,func);
 }
 
+CardFactory::constructor_t CardFactory::getConstructor(c_type_id_t type_id)
+{
+    return constructors_[type_id];
+}
+
 void CardFactory::loadCardTemplates( QDir dir )
 {
     //load card templates from external qmls
@@ -183,12 +229,12 @@ QStringList CardFactory::getCardTypeNames()
     return QStringList(cardtypenames_.values());
 }
 
-c_type_id_t CardFactory::name2id(QString name)
+c_type_id_t CardFactory::name2id(QString name) const
 {
     return cardtypenames_.key(name);
 }
 
-QString CardFactory::id2name(c_type_id_t id)
+QString CardFactory::id2name(c_type_id_t id) const
 {
     return cardtypenames_.value(id);
 }

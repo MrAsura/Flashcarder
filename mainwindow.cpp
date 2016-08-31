@@ -4,6 +4,7 @@
 #include "cardedit.h"
 #include "cardfactory.h"
 #include "cardlisteditor.h"
+#include "cardviewer.h"
 
 #include <QDir>
 #include <QFileDialog>
@@ -49,9 +50,8 @@ MainWindow::MainWindow(QWidget *parent) :
     //Use a stacked widget to display different views
     //Widgets should be added in the order they are in the menu
     QStackedWidget* cont = new QStackedWidget(ui->centralWidget);
-    QWidget* cardView = new QWidget(cont);
-    cardView->setObjectName("CardView");
-    cont->addWidget( cardView ); //View cards TODO: replace with proper widget?
+
+    cont->addWidget( new CardViewer(cont) ); //View cards
     cont->addWidget( new DictEdit(cont, def_dir_) ); //Dict edit view
     cont->addWidget( new CardEdit(cont,def_dir_) ); //Card edit view
     cont->addWidget( makeCardPreview(cont) ); //Card type preview
@@ -59,6 +59,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     cont_ = cont;
     setCentralWidget(cont);
+
+    reloadCardlist();
 }
 
 MainWindow::~MainWindow()
@@ -180,10 +182,17 @@ void MainWindow::reloadDir()
 
 void MainWindow::reloadWidgets()
 {
-    //TODO: Add other widgets.
+    //TODO: Add other widgets. Error checking
     cont_->findChild<DictEdit*>("DictEdit")->setDir(def_dir_);
     cont_->findChild<CardEdit*>("CardEdit")->setDir(def_dir_);
     cont_->findChild<CardlistEditor*>("CardlistEditor")->setDir(def_dir_);
+}
+
+void MainWindow::reloadCardlist()
+{
+    //TODO: Get proper cardlist from the selected cards
+    std::shared_ptr<Cardlist> new_list( new Cardlist() );
+    cont_->findChild<CardViewer*>("CardViewer")->setCardlist(new_list);
 }
 
 void MainWindow::on_actionView_Cards_triggered()

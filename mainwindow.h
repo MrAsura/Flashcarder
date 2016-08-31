@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QStackedWidget>
 
+#include <cardlist.h>
+
 namespace Ui {
 class MainWindow;
 }
@@ -40,6 +42,7 @@ private:
     QString getNewDir(QString dir_to_ask_for = "data");
     void reloadDir(); //Update files based on def_dir_
     void reloadWidgets(); //Update widgets
+    void reloadCardlist(); //Update cardlist
 };
 
 #endif // MAINWINDOW_H
