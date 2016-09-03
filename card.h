@@ -6,6 +6,7 @@
 #include <QVariant>
 
 #include "global.h"
+using global::c_type_id_t;
 
 class Card //: QObject
 {

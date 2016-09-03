@@ -8,7 +8,7 @@ Rectangle{
     objectName: "CardTypeDict"
 
     property string word: "word"
-    property int scale: 1
+    property double scale: 1.0
 
     function init( param ){
         word = param["word"];
@@ -18,7 +18,7 @@ Rectangle{
     function getTemplate(){
         console.log("Got template");
         return {word:"",
-                scale:1};
+                scale:1.0};
     }
 
     function testPrint(){

@@ -14,6 +14,7 @@
 #include <QHBoxLayout>
 #include <QLineEdit>
 #include <QLabel>
+#include <QQuickItem>
 
 #include <algorithm>
 
@@ -40,6 +41,9 @@ CardlistEditor::CardlistEditor(QWidget *parent, QString def_dir) :
     //qDebug("Initializing cardlist editor card types to: ");
     //qDebug((char *)CardFactory::getInstance().getCardTypeNames().join(',').data());
     ui->regCTypes->addItems(CardFactory::getInstance().getCardTypeNames());
+
+    //Init preview with a card loader
+    ui->previewView->setSource(PREVIEWER);
 }
 
 CardlistEditor::~CardlistEditor()
@@ -291,6 +295,8 @@ QWidget *CardlistEditor::newFieldBase(QString label_text, QString label_obj_name
     //Add labe with field name and field val
     QLabel* field_name = new QLabel(label_text);
     field_name->setObjectName(label_obj_name);
+    field_name->setAlignment(Qt::AlignTop|field_name->alignment());
+
     field_base_lo->addWidget(field_name);
     field_base_lo->addWidget(field_val_base);
 
@@ -454,6 +460,7 @@ void CardlistEditor::on_saveValBtn_clicked()
     {
         //Update val of cur_list_
         saveFieldValue(ui->fieldEditArea->widget(), cur_list_[ind]);
+        updatePreview(cur_list_[ind].toMap());
 
         //Update the row whose value has been changed
         updateRow(row, cur_list_[ind]);
@@ -485,6 +492,7 @@ void CardlistEditor::on_curCardlistView_itemSelectionChanged()
     if( ind >= 0 && ind < ui->curCardlistView->count() - 2){
         QVariantMap card = cur_list_[ind].toMap();
         populateFieldEditArea(card);
+        updatePreview(card);
 
         //Disaple editing on the card type field
         QWidget* c_type_id_label = ui->fieldEditArea->widget()->findChild<QWidget*>(FLABELOBJFORMAT.arg(CardFactory::cardTmplIdFieldName));
@@ -500,10 +508,31 @@ void CardlistEditor::on_curCardlistView_itemSelectionChanged()
         QWidget* empty = new QWidget();
         empty->setObjectName("fieldEditContents");
         ui->fieldEditArea->setWidget(empty);
+        updatePreview(QVariantMap());
     }
 }
 
 void CardlistEditor::set_unsaved_changes_status()
 {
     cur_card_saved_ = false;
+}
+
+void CardlistEditor::updatePreview(QVariantMap card)
+{
+    if(card.empty()){
+        //Inproper card. Clear preview
+        ui->previewView->rootObject()->setVisible(false);
+        return;
+    }
+
+    //Load card with the loader in preview
+    c_type_id_t type = CardFactory::getInstance().name2id(card[CardFactory::cardTmplIdFieldName].toString());
+    QVariant url = QVariant::fromValue(CardFactory::getInstance().getUrl(type));
+    QVariant param = card[CardFactory::cardTmplDataFieldName];
+    QVariant immediate = QVariant::fromValue(true);
+    QObject* loader = ui->previewView->rootObject();
+
+    QMetaObject::invokeMethod( loader, global::LOAD_FUNC_NAME, Q_ARG(QVariant, url), Q_ARG(QVariant, param), Q_ARG(QVariant, immediate));
+
+    ui->previewView->rootObject()->setVisible(true);
 }

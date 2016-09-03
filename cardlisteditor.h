@@ -5,8 +5,10 @@
 #include <QString>
 #include <QVariantList>
 #include <QLayout>
+#include <QUrl>
 
 #include "global.h"
+using global::c_type_id_t;
 
 namespace Ui {
 class CardlistEditor;
@@ -61,6 +63,7 @@ private:
     static const QString FIELDLOOBJNAME;
     static const QString FIELDVALLOOBJNAME;
 
+    const QUrl PREVIEWER = QUrl("qrc:/CardLoader.qml");
     //Populate view from cur_list_ (clear old list)
     void populateCardlistView();
 
@@ -68,6 +71,9 @@ private:
     void addRow(int row , const QVariant &card);
     void updateRow(int row , const QVariant &card);
     void removeRow( int row );
+
+    //Set preview to display card
+    void updatePreview(QVariantMap card);
 
     //Add fields based on the given card to the field edit area
     void populateFieldEditArea(const QVariantMap &card);

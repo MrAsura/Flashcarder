@@ -4,7 +4,7 @@ Rectangle {
     id: cardTypeOneF
     objectName: "CardTypeOneF"
 
-    property int scale: 1
+    property double scale: 1.0
     property string word: "Below"
     property string desc: "floor with magic wand below"
     property int band: 50
@@ -20,7 +20,7 @@ Rectangle {
     function getTemplate(){
         return {word:"",
                 desc:"",
-                scale:1,
+                scale:1.0,
                 band:50};
     }
 

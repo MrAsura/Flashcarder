@@ -1,5 +1,7 @@
 #include "cardviewer.h"
 #include "ui_cardviewer.h"
+#include "global.h"
+using global::c_type_id_t;
 
 #include <QQmlContext>
 #include <QObject>
@@ -24,7 +26,7 @@ CardViewer::CardViewer(QWidget *parent, std::shared_ptr<Cardlist> list) :
     QVariant param = QVariant::fromValue(QVariantMap());
     QVariant url = QVariant::fromValue(QUrl("qrc:/CardTypeOneF.qml"));
     QVariant im = QVariant::fromValue(true);
-    QMetaObject::invokeMethod(loader_,"load", Q_ARG(QVariant, url), Q_ARG(QVariant, param), Q_ARG(QVariant, im));
+    QMetaObject::invokeMethod(loader_, global::LOAD_FUNC_NAME, Q_ARG(QVariant, url), Q_ARG(QVariant, param), Q_ARG(QVariant, im));
 }
 
 CardViewer::~CardViewer()

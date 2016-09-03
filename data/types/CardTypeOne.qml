@@ -8,12 +8,12 @@ Flipable{
 
     property var back_param: ({kanji:"下",
                                num:50,
-                               scale:1})
+                               scale:1.0})
     property var front_param: ({word:"BelowWWWWWWW",
                                 desc:"floor with magic wand below",
-                                scale:1,
+                                scale:1.0,
                                 band:50})
-    property int scale: 1
+    property double scale: 1.0
 
     width: 200*scale
     height: 300*scale

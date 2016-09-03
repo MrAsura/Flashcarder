@@ -5,6 +5,8 @@
 #include "cardfactory.h"
 #include "cardlisteditor.h"
 #include "cardviewer.h"
+#include "global.h"
+using global::c_type_id_t;
 
 #include <QDir>
 #include <QFileDialog>
@@ -135,14 +137,14 @@ QWidget *MainWindow::makeCardPreview( QWidget* parent )
     param.insert("num",50);
     QQuickItem* root = loader->rootObject();
     QObject* call_obj = root;
-    QMetaObject::invokeMethod(call_obj,"load", Q_ARG(QVariant,url), Q_ARG(QVariant,QVariant::fromValue(param)), Q_ARG(QVariant,QVariant::fromValue(true)));
+    QMetaObject::invokeMethod(call_obj,global::LOAD_FUNC_NAME, Q_ARG(QVariant,url), Q_ARG(QVariant,QVariant::fromValue(param)), Q_ARG(QVariant,QVariant::fromValue(true)));
     QMetaObject::invokeMethod(call_obj,"printTest");
 
     //Try loading a card inthe deck as well
     root = deck->rootObject();
     call_obj = root->findChild<QObject*>("CardLoader");
     url = QUrl::fromLocalFile(def_type_dir_+"/CardTypeOne.qml");
-    QMetaObject::invokeMethod(call_obj,"load", Q_ARG(QVariant,url), Q_ARG(QVariant,QVariant::fromValue(param)),Q_ARG(QVariant,QVariant::fromValue(true)));
+    QMetaObject::invokeMethod(call_obj,global::LOAD_FUNC_NAME, Q_ARG(QVariant,url), Q_ARG(QVariant,QVariant::fromValue(param)),Q_ARG(QVariant,QVariant::fromValue(true)));
 
     wid->setLayout(lo);
 

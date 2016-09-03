@@ -1,6 +1,8 @@
 #include "cardedit.h"
 #include "ui_cardedit.h"
 #include "cardfactory.h"
+#include "global.h"
+using global::c_type_id_t;
 
 #include <QList>
 #include <cmath>

@@ -13,6 +13,7 @@
 #include <memory>
 
 #include "global.h"
+using global::c_type_id_t;
 
 class Card;
 

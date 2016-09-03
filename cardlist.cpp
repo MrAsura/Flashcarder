@@ -1,4 +1,7 @@
 #include "cardlist.h"
+#include "global.h"
+using global::c_type_id_t;
+
 #include <list>
 #include <algorithm>
 #include <iterator>

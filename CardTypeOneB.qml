@@ -5,7 +5,7 @@ Rectangle {
     id: cardTypeOneB
     objectName: "CardTypeOneB"
 
-    property int scale: 1
+    property double scale: 1.0
     property string kanji: "下"
     property int num: 50
 
@@ -19,7 +19,7 @@ Rectangle {
     function getTemplate(){
         return {kanji:"",
                 num:0,
-                scale:1};
+                scale:1.0};
     }
 
     width: 200*scale

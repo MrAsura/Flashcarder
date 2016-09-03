@@ -21,7 +21,8 @@ SOURCES += main.cpp\
     cardedit.cpp \
     card.cpp \
     cardlisteditor.cpp \
-    cardviewer.cpp
+    cardviewer.cpp \
+    global.cpp
 
 HEADERS  += mainwindow.h \
     dictedit.h \
@@ -41,5 +42,4 @@ FORMS    += mainwindow.ui \
 
 RESOURCES += qml.qrc
 
-DISTFILES += \
-    data/types/CardTypeOne.qml
+DISTFILES += data/types/CardTypeOne.qml
