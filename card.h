@@ -7,8 +7,10 @@
 
 #include "global.h"
 
-class Card
+class Card //: QObject
 {
+    //Q_OBJECT //Needles overhead to declare as a Q_Object when works without it?
+
 public:
     ~Card();
     Card( c_type_id_t type, QVariantMap data, QObject* context, QStringList keywords);
@@ -23,7 +25,7 @@ public:
     void addKeywords(QStringList keywords );
     void clearKeywords();
 
-    void display(); //Display the card
+    void display(bool immediate = true); //Display the card
 
     QStringList keywords(); //Return keywords associated with the card. Can be used to find a specific card.
 
@@ -36,6 +38,10 @@ public:
     QVariantMap getData() const;
 
     QObject *getContext() const;
+
+signals:
+    //Define a display signal that is sent when the card should be displayed
+    //void displayCard(QVariant url, QVariant data );
 
 private:
 

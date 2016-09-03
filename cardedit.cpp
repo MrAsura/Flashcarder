@@ -20,6 +20,8 @@ CardEdit::CardEdit(QWidget *parent, QString def_dir) :
     is_cardtype_(false),
     cur_file_name_("")
 {
+    qDebug("CardEdit building...");
+
     ui->setupUi(this);
 }
 

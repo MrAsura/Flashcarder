@@ -10,7 +10,8 @@ Card::~Card()
 
 Card::Card(c_type_id_t type, QVariantMap data, QObject *context, QStringList keywords): type_(type), data_(data), context_(context), keywords_(keywords)
 {
-
+    //Connect the contexts load function to the display card signal
+    //QObject::connect(this, SIGNAL(displayCard(QVariant,QVariant)), context, SLOT(load(QVariant,QVariant)));
 }
 
 void Card::setContext(QObject *context)
@@ -44,11 +45,14 @@ void Card::clearKeywords()
     keywords_.clear();
 }
 
-void Card::display()
+void Card::display(bool immediate)
 {
     //Call the context load function and pass data to it
-    //param1: url for qml card type, param2: data for loading the card
-    QMetaObject::invokeMethod(context_,"load", Q_ARG(QUrl,CardFactory::getInstance().getUrl(type_)), Q_ARG(QVariant,QVariant::fromValue(data_)));
+    //param1: url for qml card type, param2: data for loading the card, param3: If the card is loaded immedietly
+    QMetaObject::invokeMethod(context_,"load", Q_ARG(QVariant,QVariant::fromValue(CardFactory::getInstance().getUrl(type_))),
+                                               Q_ARG(QVariant,QVariant::fromValue(data_)),
+                                               Q_ARG(QVariant,QVariant::fromValue(immediate)));
+    //emit displayCard(QVariant::fromValue(CardFactory::getInstance().getUrl(type_)), QVariant::fromValue(data_));
 }
 
 QStringList Card::keywords()

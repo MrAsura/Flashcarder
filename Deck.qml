@@ -1,69 +1,120 @@
 import QtQuick 2.0
 
-Rectangle {
-    width: 200
+import "qrc:///"
+
+Item { //Base of the deck
+    width: 400
     height: 200
 
-    id: par
+    objectName: "DeckBase"
+    id: deckBase
 
+    //Add a frame for debugging
     Rectangle{
-        width: 50
-        height: 50
-        color: "black"
-        id: rect
+        anchors.fill: parent
+        opacity: 0.5
+        color: "grey"
+        border.width: 2
+    }
+
+    MouseArea{
+        anchors.fill: parent
+        acceptedButtons: Qt.LeftButton | Qt.RightButton
+        onClicked: {
+            if( mouse.button == Qt.RightButton ){
+                cardHolder.rightShift();
+            } else{
+                cardHolder.leftShift();
+            }
+
+            console.log("click click");
+        }
+    }
+
+    Item { //Area that will contain the card and the loader
+
+        id: cardHolder
+
+        CardLoader{
+            id: cardLoader
+            anchors.centerIn: parent
+        }
+
+        //Fit to the size of the cardLoader (and its card)
+        width: cardLoader.width
+        height: cardLoader.height
+        anchors.verticalCenter: parent.verticalCenter
+
+        //color: "black"
 
         state: "visible"
 
-        property int count: 1
+        //Connect card animation to signals emitted by the context
+        Connections{
+            target: signalContext
+            onMoveLeft: cardHolder.leftShift()
+            onMoveRight: cardHolder.rightShift()
+        }
 
-        MouseArea{
-            anchors.fill: parent
-            onClicked: {
-                rect.state = rect.count % 2 == 0 ? "exit_left" : "exit_right"
-                rect.count = rect.count + 1
-                console.log("click click")
+        //Functions for making left/right transitions
+        function leftShift(){
+            //Performe the leftward movement of the card
+            if(cardHolder.state === "visible" ){
+                cardHolder.state = "exit_left";
             }
         }
+        function rightShift(){
+            if(cardHolder.state === "visible" ){
+                cardHolder.state = "exit_right";
+            }
+        }
+        function showNewCard(){
+            cardLoader.showNew();
+        }
+
+        //property int count: 1;
+
+
 
         states: [
             State {
                 name: "visible"
                 PropertyChanges {
-                    target: rect
-                    color: "black"
-                    x: par.width/2
+                    target: cardHolder
+//                    color: "black"
+                    x: deckBase.width/2 - cardHolder.width/2
                 }
             },
             State {
                 name: "exit_left"
                 PropertyChanges {
-                    target: rect
-                    color: "green"
-                    x: -rect.width
-                    //count: rect.count + 1
+                    target: cardHolder
+//                    color: "green"
+                    x: -cardHolder.width
+                    //count: cardHolder.count + 1
                 }
             },
             State{
                 name: "switch_left"
                 PropertyChanges {
-                    target: rect
-                    x: par.width
+                    target: cardHolder
+                    x: deckBase.width
                 }
             },
             State{
                 name: "switch_right"
                 PropertyChanges {
-                    target: rect
-                    x: -rect.width
+                    target: cardHolder
+                    x: -cardHolder.width
                 }
             },
             State{
                 name: "exit_right"
                 PropertyChanges {
-                    target: rect
-                    color: "green"
-                    x: par.width
-                    //count: rect.count + 1
+                    target: cardHolder
+//                    color: "green"
+                    x: deckBase.width
+                    //count: cardHolder.count + 1
                 }
             }
         ]
@@ -74,13 +125,16 @@ Rectangle {
                 to: "exit_left"
                 SequentialAnimation{
                     NumberAnimation {
-                        target: rect
+                        target: cardHolder
                         property: "x"
                         duration: 1000
                         easing.type: Easing.InOutQuad
                     }
                     ScriptAction{
-                        script: rect.state = "switch_left"
+                        script: {
+                            cardHolder.showNewCard();
+                            cardHolder.state = "switch_left";
+                        }
                     }
                 }
             },
@@ -89,13 +143,16 @@ Rectangle {
                 to: "exit_right"
                 SequentialAnimation{
                     NumberAnimation{
-                        target: rect
+                        target: cardHolder
                         property: "x"
                         duration: 1000
                         easing.type: Easing.InOutQuad
                     }
                     ScriptAction{
-                        script: rect.state = "switch_right"
+                        script: {
+                            cardHolder.showNewCard();
+                            cardHolder.state = "switch_right";
+                        }
                     }
                 }
             },
@@ -103,14 +160,14 @@ Rectangle {
                 from: "exit_left"
                 to: "switch_left"
                 ScriptAction{
-                    script: rect.state = "visible"
+                    script: cardHolder.state = "visible"
                 }
             },
             Transition {
                 from: "exit_right"
                 to: "switch_right"
                 ScriptAction{
-                    script: rect.state = "visible"
+                    script: cardHolder.state = "visible"
                 }
             },
             Transition {
@@ -118,7 +175,7 @@ Rectangle {
                 to: "visible"
 
                 NumberAnimation {
-                    target: rect
+                    target: cardHolder
                     property: "x"
                     duration: 1000
                     easing.type: Easing.InOutQuad
@@ -134,7 +191,7 @@ Rectangle {
                 SequentialAnimation{
                     ParallelAnimation{
                         ColorAnimation{
-                            target: rect
+                            target: cardHolder
                             duration: 1000
                             easing.type: Easing.InOutQuad
                         }
@@ -149,7 +206,7 @@ Rectangle {
                         }
 
 //                        NumberAnimation {
-//                            target: rect
+//                            target: cardHolder
 //                            property: "x"
 //                            duration: 1000
 //                            easing.type: Easing.InOutQuad
@@ -157,11 +214,11 @@ Rectangle {
                     }
 //                    ScriptAction{
 //                        script: {
-//                            if( rect.state == "exit_left" ){
-//                                rect.state = "exit_right"
+//                            if( cardHolder.state == "exit_left" ){
+//                                cardHolder.state = "exit_right"
 //                            }
 //                            else{
-//                                rect.state = "exit_left"
+//                                cardHolder.state = "exit_left"
 //                            }
 //                        }
 //                    }
@@ -173,12 +230,12 @@ Rectangle {
                 reversible: false
                 ParallelAnimation{
                     ColorAnimation{
-                        target: rect
+                        target: cardHolder
                         duration: 1000
                         easing.type: Easing.InOutQuad
                     }
                     NumberAnimation {
-                        target: rect
+                        target: cardHolder
                         property: "x"
                         duration: 1000
                         easing.type: Easing.InOutQuad
@@ -194,8 +251,8 @@ Rectangle {
                 }
                 ScriptAction{
                     script:{
-                        console.log("to visible",rect.state);
-                        rect.state = "visible";
+                        console.log("to visible",cardHolder.state);
+                        cardHolder.state = "visible";
                     }
                 }
             }

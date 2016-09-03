@@ -32,6 +32,8 @@ CardlistEditor::CardlistEditor(QWidget *parent, QString def_dir) :
     cur_card_saved_(true),
     cur_list_(QVariantList())
 {
+    qDebug("CardlistEditor building...");
+
     ui->setupUi(this);
 
     //Initialize the combobox here

@@ -10,7 +10,7 @@
 #include <QFileDialog>
 #include <QDebug>
 #include <QGridLayout>
-#include <QQmlEngine>
+#include <QQmlContext>
 #include <QQmlComponent>
 #include <QQuickWidget>
 #include <QQuickItem>
@@ -104,7 +104,12 @@ QWidget *MainWindow::makeCardPreview( QWidget* parent )
     QQuickWidget* card1 = new QQuickWidget(QUrl("qrc:///CardTypeDict.qml"));
     QQuickWidget* card2 = new QQuickWidget(QUrl("qrc:///CardTypeOneB.qml"));
     QQuickWidget* card3 = new QQuickWidget(QUrl("qrc:///CardTypeOneF.qml"));
-    QQuickWidget* test = new QQuickWidget(QUrl("qrc:///Deck.qml"));
+
+    QQuickWidget* deck = new QQuickWidget;
+    CardViewer view;// = new CardViewer; //TODO: Leaks memory, fix
+    deck->rootContext()->setContextProperty("signalContext", &view);
+    deck->setSource(QUrl("qrc:///Deck.qml"));
+
     QQuickWidget* loader = new QQuickWidget(QUrl("qrc:///CardLoader.qml"));
     QQuickWidget* doublecard = new QQuickWidget(QUrl::fromLocalFile(def_type_dir_+"/CardTypeOne.qml"));
 
@@ -119,7 +124,7 @@ QWidget *MainWindow::makeCardPreview( QWidget* parent )
     lo->addWidget(card1,1,1,1,1);
     lo->addWidget(card2,2,1,1,1);
     lo->addWidget(card3,2,2,1,1);
-    lo->addWidget(test,1,2,1,1);
+    lo->addWidget(deck,1,2,1,1);
     lo->addWidget(loader,2,3,1,1);
     lo->addWidget(doublecard,3,1,1,1);
 
@@ -130,8 +135,14 @@ QWidget *MainWindow::makeCardPreview( QWidget* parent )
     param.insert("num",50);
     QQuickItem* root = loader->rootObject();
     QObject* call_obj = root;
-    QMetaObject::invokeMethod(call_obj,"load", Q_ARG(QVariant,url), Q_ARG(QVariant,QVariant::fromValue(param)));
+    QMetaObject::invokeMethod(call_obj,"load", Q_ARG(QVariant,url), Q_ARG(QVariant,QVariant::fromValue(param)), Q_ARG(QVariant,QVariant::fromValue(true)));
     QMetaObject::invokeMethod(call_obj,"printTest");
+
+    //Try loading a card inthe deck as well
+    root = deck->rootObject();
+    call_obj = root->findChild<QObject*>("CardLoader");
+    url = QUrl::fromLocalFile(def_type_dir_+"/CardTypeOne.qml");
+    QMetaObject::invokeMethod(call_obj,"load", Q_ARG(QVariant,url), Q_ARG(QVariant,QVariant::fromValue(param)),Q_ARG(QVariant,QVariant::fromValue(true)));
 
     wid->setLayout(lo);
 
@@ -197,7 +208,7 @@ void MainWindow::reloadCardlist()
 
 void MainWindow::on_actionView_Cards_triggered()
 {
-    cont_->setCurrentWidget( cont_->findChild<QWidget*>("CardView") );
+    cont_->setCurrentWidget( cont_->findChild<QWidget*>("CardViewer") );
 }
 
 void MainWindow::on_actionChange_Directory_triggered()
