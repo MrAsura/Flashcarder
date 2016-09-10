@@ -25,7 +25,7 @@ public:
     Cardlist* suffle(); //re-orders cards to a random order and current() returns the first card. Return pointer to object to support chaining
 
     card_ptr current(); //return the current card.
-    card_ptr next(); //Call to next returns the card after current() (or the last card) and next call to current() returns the retured card
+    card_ptr next(); //Call to next returns the card after current() (or the last card) and next call to current() returns the returned card
     card_ptr prev(); //Returns the card retured by current() before last call to next() (or the first card)
     card_ptr first(); //Return first card and current() returns it also
     card_ptr last(); //Returns last card and current() returns it also

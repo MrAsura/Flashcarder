@@ -26,7 +26,7 @@ public:
     void addKeywords(QStringList keywords );
     void clearKeywords();
 
-    void display(bool immediate = true); //Display the card
+    void display(bool immediate = false); //Display the card
 
     QStringList keywords(); //Return keywords associated with the card. Can be used to find a specific card.
 
