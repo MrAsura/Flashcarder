@@ -22,7 +22,7 @@ public:
     ~Cardlist();
 
     Cardlist* reset(); //current() will return the first card in the container after call to reset(). Return pointer to object to support chaining
-    Cardlist* suffle(); //re-orders cards to a random order and current() returns the first card. Return pointer to object to support chaining
+    Cardlist* shuffle(); //re-orders cards to a random order and current() returns the first card. Return pointer to object to support chaining
 
     card_ptr current(); //return the current card.
     card_ptr next(); //Call to next returns the card after current() (or the last card) and next call to current() returns the returned card

@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QStackedWidget>
+#include <QHash>
 
 #include <cardlist.h>
 
@@ -16,7 +17,7 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+    ~MainWindow(); 
 
 private slots:
     void on_actionCard_Preview_triggered();
@@ -31,6 +32,10 @@ private slots:
 
     void on_actionEdit_Create_Cardlists_triggered();
 
+    void on_actionShuffle_toggled(bool is_shuffled);
+
+    void on_menuDictionaries_triggered(QAction* action);
+
 private:
     Ui::MainWindow *ui;
 
@@ -43,6 +48,11 @@ private:
     void reloadDir(); //Update files based on def_dir_
     void reloadWidgets(); //Update widgets
     void reloadCardlist(); //Update cardlist
+
+    //Manage cards in cardlist
+    std::shared_ptr<Cardlist> addCards(QAction *action);
+    void removeCards(QAction *action);
+    //QHash<QString, QList<Cardlist::card_ptr>> card_cache_;
 };
 
 #endif // MAINWINDOW_H

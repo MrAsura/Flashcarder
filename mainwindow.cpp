@@ -6,6 +6,7 @@
 #include "cardlisteditor.h"
 #include "cardviewer.h"
 #include "global.h"
+#include "card.h"
 using global::c_type_id_t;
 
 #include <QDir>
@@ -53,7 +54,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //Widgets should be added in the order they are in the menu
     QStackedWidget* cont = new QStackedWidget(ui->centralWidget);
 
-    cont->addWidget( new CardViewer(cont) ); //View cards
+    cont->addWidget( new CardViewer(cont, std::shared_ptr<Cardlist>(new Cardlist())) ); //View cards
     cont->addWidget( new DictEdit(cont, def_dir_) ); //Dict edit view
     cont->addWidget( new CardEdit(cont,def_dir_) ); //Card edit view
     cont->addWidget( makeCardPreview(cont) ); //Card type preview
@@ -108,7 +109,7 @@ QWidget *MainWindow::makeCardPreview( QWidget* parent )
     QQuickWidget* card3 = new QQuickWidget(QUrl("qrc:///CardTypeOneF.qml"));
 
     QQuickWidget* deck = new QQuickWidget;
-    CardViewer view;// = new CardViewer; //TODO: Leaks memory, fix
+    CardViewer view(parent, std::shared_ptr<Cardlist>(new Cardlist()));// = new CardViewer; //TODO: Leaks memory, fix
     deck->rootContext()->setContextProperty("signalContext", &view);
     deck->setSource(QUrl("qrc:///Deck.qml"));
 
@@ -140,7 +141,7 @@ QWidget *MainWindow::makeCardPreview( QWidget* parent )
     QMetaObject::invokeMethod(call_obj,global::LOAD_FUNC_NAME, Q_ARG(QVariant,url), Q_ARG(QVariant,QVariant::fromValue(param)), Q_ARG(QVariant,QVariant::fromValue(true)));
     QMetaObject::invokeMethod(call_obj,"printTest");
 
-    //Try loading a card inthe deck as well
+    //Try loading a card in the deck as well
     root = deck->rootObject();
     call_obj = root->findChild<QObject*>("CardLoader");
     url = QUrl::fromLocalFile(def_type_dir_+"/CardTypeOne.qml");
@@ -161,8 +162,15 @@ QString MainWindow::getNewDir(QString dir_to_ask_for)
 
 void MainWindow::reloadDir()
 {
-    //Reset current stuff
-    ui->menuDictionaries->clear();
+    //Reset current card list
+    for (QAction *action : ui->menuDictionaries->actions())
+    {
+        if (!action->isSeparator() && action->objectName() != "actionShuffle")
+        {
+            ui->menuDictionaries->removeAction(action);
+        }
+    }
+    //ui->menuDictionaries->clear();
 
     //Read cardtypes
     CardFactory::getInstance().readCardtypes( def_dir_ );
@@ -176,6 +184,7 @@ void MainWindow::reloadDir()
     for( QString dict: dicts)
     {
         QAction* act = new QAction(dict,ui->menuDictionaries);
+        act->setData(QDir::toNativeSeparators(def_dir_ + "/" + dict));
         act->setCheckable(true);
         ui->menuDictionaries->addAction(act);
     }
@@ -188,6 +197,7 @@ void MainWindow::reloadDir()
     for( QString dict: dicts)
     {
         QAction* act = new QAction(dict,ui->menuDictionaries);
+        act->setData(QDir::toNativeSeparators(def_dir_ + "/" + dict));
         act->setCheckable(true);
         ui->menuDictionaries->addAction(act);
     }
@@ -203,9 +213,46 @@ void MainWindow::reloadWidgets()
 
 void MainWindow::reloadCardlist()
 {
-    //TODO: Get proper cardlist from the selected cards
+    //Get proper cardlist from the selected cards
     std::shared_ptr<Cardlist> new_list( new Cardlist() );
+    for( QAction* action : ui->menuDictionaries->actions())
+    {
+        if(action->isChecked() && !action->isSeparator() && action->objectName() != "Shuffle")
+        {
+            new_list->combine(*addCards(action));
+        }
+    }
+
     cont_->findChild<CardViewer*>("CardViewer")->setCardlist(new_list);
+    cont_->findChild<CardViewer*>("CardViewer")->resetCardlist();
+}
+
+std::shared_ptr<Cardlist> MainWindow::addCards(QAction *action)
+{
+    QObject *context = cont_->findChild<CardViewer*>("CardViewer")->getContext();
+    std::shared_ptr<Cardlist> list = CardFactory::getInstance().getCardlist(action->data().toString(), context);
+//    if(card_cache_.contains(action->objectName()))
+//    {
+//        //Remove existing cards before adding new
+//        removeCards(action);
+//    }
+/*    QList<Cardlist::card_ptr> cache_list;
+    list->reset();
+    do{
+        cache_list.append(list->current());
+    } while (list->current() != list->next());
+    list->reset();
+    card_cache_[action->objectName()] = cache_list;*/
+    return list;
+}
+
+void MainWindow::removeCards(QAction *action)
+{
+    //Todo: Add a more fancy card management cheme
+    if(!action->isChecked())
+    {
+        reloadCardlist(); //Bruteforce method
+    }
 }
 
 void MainWindow::on_actionView_Cards_triggered()
@@ -225,4 +272,33 @@ void MainWindow::on_actionEdit_Create_Cardlists_triggered()
 {
     //Switch to cardlist editor widget
     cont_->setCurrentWidget(cont_->findChild<QWidget*>("CardlistEditor"));
+}
+
+void MainWindow::on_actionShuffle_toggled(bool is_shuffled)
+{
+    if(is_shuffled){
+        cont_->findChild<CardViewer*>("CardViewer")->shuffle();
+    }
+    else
+    {
+        //Reload selected cards
+        reloadCardlist();
+    }
+}
+
+void MainWindow::on_menuDictionaries_triggered(QAction *action)
+{
+    if(!action->isSeparator() && action->objectName() != "actionShuffle")
+    {
+        qDebug("Dict menu action triggered");
+        if(action->isChecked())
+        {
+            //addCards(action);
+            reloadCardlist();
+        }
+        else
+        {
+            removeCards(action);
+        }
+    }
 }

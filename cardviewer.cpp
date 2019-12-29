@@ -52,6 +52,11 @@ QObject *CardViewer::getContext()
     return loader_;
 }
 
+void CardViewer::shuffle()
+{
+    cardlist_->shuffle();
+}
+
 void CardViewer::updateView()
 {
     card_num_ = 1;
@@ -59,13 +64,13 @@ void CardViewer::updateView()
     updateLabel();
 
     //Display firts card
-    cardlist_->first()->display(true);
+    if (card_count_ > 0) cardlist_->first()->display(true);
 }
 
 void CardViewer::updateLabel()
 {
     //Set number of cards
-    ui->cardCountLabel->setText(QString("%1/%2").arg(card_num_,card_count_));
+    ui->cardCountLabel->setText(QString("%1 of %2").arg(card_num_).arg(card_count_));
 }
 
 void CardViewer::on_leftBtn_clicked()

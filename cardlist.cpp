@@ -48,7 +48,7 @@ Cardlist *Cardlist::reset()
     return this;
 }
 
-Cardlist *Cardlist::suffle()
+Cardlist *Cardlist::shuffle()
 {
     if( first_ == nullptr )
     {
@@ -86,29 +86,34 @@ Cardlist *Cardlist::suffle()
 
 Cardlist::card_ptr Cardlist::current()
 {
-    return current_->card;
+    if (current_) return current_->card;
+    return nullptr;
 }
 
 Cardlist::card_ptr Cardlist::next()
 {
-    current_ = current_->next;
-    return current_->card;
+    if(current_ && current_->prev) current_ = current_->next;
+    if(current_) return current_->card;
+    return nullptr;
 }
 
 Cardlist::card_ptr Cardlist::prev()
 {
-    current_ = current_->prev;
-    return current_->card;
+    if(current_ && current_->prev) current_ = current_->prev;
+    if(current_) return current_->card;
+    return nullptr;
 }
 
 Cardlist::card_ptr Cardlist::first()
 {
-    return first_->card;
+    if (first_) return first_->card;
+    return nullptr;
 }
 
 Cardlist::card_ptr Cardlist::last()
 {
-    return last_->card;
+    if (last_) return last_->card;
+    return nullptr;
 }
 
 Cardlist *Cardlist::combine(Cardlist &list)
@@ -193,7 +198,7 @@ std::vector<std::pair<int, int> > Cardlist::getOrder(unsigned int size, std::pai
         std::list<int>::iterator s_it = seconds.begin();
         std::advance(f_it,d(e_));
         std::advance(s_it,d(e_));
-        pairs.emplace_back(*f_it,*s_it);
+        pairs.emplace_back(std::pair<int,int>(*f_it,*s_it));
         firsts.erase(f_it);
         seconds.erase(s_it);
     }

@@ -27,13 +27,19 @@
     <property name="title">
      <string>Menu</string>
     </property>
+    <widget class="QMenu" name="menuMisc">
+     <property name="title">
+      <string>misc.</string>
+     </property>
+     <addaction name="actionEdit_Create_Dict"/>
+     <addaction name="actionEdit_Create_Cardlist"/>
+     <addaction name="separator"/>
+     <addaction name="actionCard_Preview"/>
+    </widget>
     <addaction name="actionView_Cards"/>
     <addaction name="separator"/>
-    <addaction name="actionEdit_Create_Dict"/>
-    <addaction name="actionEdit_Create_Cardlist"/>
     <addaction name="actionEdit_Create_Cardlists"/>
-    <addaction name="separator"/>
-    <addaction name="actionCard_Preview"/>
+    <addaction name="menuMisc"/>
     <addaction name="separator"/>
     <addaction name="actionChange_Directory"/>
    </widget>
@@ -44,6 +50,8 @@
     <property name="title">
      <string>Lists</string>
     </property>
+    <addaction name="actionShuffle"/>
+    <addaction name="separator"/>
    </widget>
    <addaction name="menuFlashcarder"/>
    <addaction name="menuDictionaries"/>
@@ -64,30 +72,59 @@
    <property name="text">
     <string>View Cards</string>
    </property>
+   <property name="toolTip">
+    <string>View currently selected cards</string>
+   </property>
   </action>
   <action name="actionEdit_Create_Dict">
    <property name="text">
     <string>Edit/Create Dict</string>
+   </property>
+   <property name="toolTip">
+    <string>Old style Edit/Create view for dicts</string>
    </property>
   </action>
   <action name="actionCard_Preview">
    <property name="text">
     <string>Card Preview</string>
    </property>
+   <property name="toolTip">
+    <string>Card Preview for debugging purposes</string>
+   </property>
   </action>
   <action name="actionEdit_Create_Cardlist">
    <property name="text">
     <string>Edit/Create Cardlist</string>
+   </property>
+   <property name="toolTip">
+    <string>Old style Edit/Create view for Cardlist</string>
    </property>
   </action>
   <action name="actionChange_Directory">
    <property name="text">
     <string>Change Directory</string>
    </property>
+   <property name="toolTip">
+    <string>Select directory where cardlists are read from</string>
+   </property>
   </action>
   <action name="actionEdit_Create_Cardlists">
    <property name="text">
     <string>Edit/Create Cardlists</string>
+   </property>
+   <property name="toolTip">
+    <string>View for Editing/Creating Cardlists</string>
+   </property>
+  </action>
+  <action name="actionShuffle">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Shuffle</string>
+   </property>
+   <property name="toolTip">
+    <string>Shuffle list of currently selected cards</string>
    </property>
   </action>
  </widget>

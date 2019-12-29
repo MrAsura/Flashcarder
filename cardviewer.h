@@ -28,6 +28,8 @@ public:
     void setCardlist( std::shared_ptr<Cardlist> cardlist );
     QObject* getContext(); //Get context for cards
 
+    void shuffle(); //Suffle cardlist
+
 private slots:
     void on_leftBtn_clicked();
 
