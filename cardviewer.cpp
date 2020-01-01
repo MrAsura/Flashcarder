@@ -57,6 +57,12 @@ void CardViewer::shuffle()
     cardlist_->shuffle();
 }
 
+void CardViewer::addCards(std::shared_ptr<Cardlist> cardlist)
+{
+    cardlist_->combine(*cardlist);
+    updateView();
+}
+
 void CardViewer::updateView()
 {
     card_num_ = 1;
@@ -107,4 +113,9 @@ void CardViewer::on_rightBtn_clicked()
         return;
     }
     //Last card reached (no next card) don't do anything
+}
+
+void CardViewer::on_flipBtn_clicked()
+{
+    emit flip();
 }

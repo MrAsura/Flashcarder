@@ -118,8 +118,18 @@ Cardlist::card_ptr Cardlist::last()
 
 Cardlist *Cardlist::combine(Cardlist &list)
 {
+    if(list.size() == 0) return this;
+
+    if(size_ != 0)
+    {
+        link(last_,list.first_);
+    }
+    else
+    {
+        first_ = list.first_;
+        current_ = list.current_;
+    }
     size_ += list.size_;
-    link(last_,list.first_);
     last_ = list.last_;
 
     list.last_ = nullptr;

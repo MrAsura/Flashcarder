@@ -293,8 +293,7 @@ void MainWindow::on_menuDictionaries_triggered(QAction *action)
         qDebug("Dict menu action triggered");
         if(action->isChecked())
         {
-            //addCards(action);
-            reloadCardlist();
+            cont_->findChild<CardViewer*>("CardViewer")->addCards(addCards(action));
         }
         else
         {

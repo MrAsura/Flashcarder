@@ -110,6 +110,10 @@ std::shared_ptr<Cardlist> CardFactory::getCardlist(QString filename, QObject* co
             }
 
             QVariantMap data = QVariant(card).toMap();
+            if (data.contains(cardTmplDataFieldName))
+            {
+                data = data[cardTmplDataFieldName].toMap();
+            }
             cardlist_ptr->addCard(Cardlist::card_ptr(getConstructor(type_id)(type_id, data, context, QStringList())));
         }
     }
@@ -231,7 +235,7 @@ QStringList CardFactory::getCardTypeNames()
 
 c_type_id_t CardFactory::name2id(QString name) const
 {
-    return cardtypenames_.key(name);
+    return cardtypenames_.key(name, "Not Found");
 }
 
 QString CardFactory::id2name(c_type_id_t id) const

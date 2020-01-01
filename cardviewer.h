@@ -19,6 +19,7 @@ class CardViewer : public QWidget
 signals:
     void moveLeft();
     void moveRight();
+    void flip();
 
 public:
     explicit CardViewer(QWidget *parent = 0, std::shared_ptr<Cardlist> list = nullptr);
@@ -29,11 +30,14 @@ public:
     QObject* getContext(); //Get context for cards
 
     void shuffle(); //Suffle cardlist
+    void addCards(std::shared_ptr<Cardlist> cardlist); //Add cardlist to the current list
 
 private slots:
     void on_leftBtn_clicked();
 
     void on_rightBtn_clicked();
+
+    void on_flipBtn_clicked();
 
 private:
     Ui::CardViewer *ui;
@@ -41,7 +45,7 @@ private:
     void updateView(); //Update view from cardlist_
     void updateLabel(); //Update the card count label
 
-    const QUrl DECK = QUrl("qrc:///Deck.qml"); //The url for the base qml file
+    const QUrl DECK = QUrl("qrc:/Deck.qml"); //The url for the base qml file
 
     std::shared_ptr<Cardlist> cardlist_;
     QObject* loader_;
