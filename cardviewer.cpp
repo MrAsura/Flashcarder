@@ -55,6 +55,7 @@ QObject *CardViewer::getContext()
 void CardViewer::shuffle()
 {
     cardlist_->shuffle();
+    resetCardlist();
 }
 
 void CardViewer::addCards(std::shared_ptr<Cardlist> cardlist)
@@ -65,12 +66,17 @@ void CardViewer::addCards(std::shared_ptr<Cardlist> cardlist)
 
 void CardViewer::updateView()
 {
-    card_num_ = 1;
+    card_num_ = 0;
     card_count_ = cardlist_->size();
-    updateLabel();
 
     //Display firts card
-    if (card_count_ > 0) cardlist_->first()->display(true);
+    if (card_count_ > 0)
+    {
+        card_num_ = 1;
+        cardlist_->first()->display(true);
+    }
+
+    updateLabel();
 }
 
 void CardViewer::updateLabel()
@@ -82,11 +88,11 @@ void CardViewer::updateLabel()
 void CardViewer::on_leftBtn_clicked()
 {
     //Load card thats on the left if it exists
-    if(cardlist_->current() != cardlist_->prev())
+    if(cardlist_->peek_prev())
     {
         //Prev card was not the current card so we haven't reach the start yet. Show new card
-        cardlist_->current()->display(); //prev() sets current() to the prev card value
-        emit moveLeft(); //Shows the transition and new card
+        cardlist_->prev()->display(); //prev() sets current() to the prev card value
+        emit moveRight(); //Shows the transition and new card
 
         //Update card num label
         card_num_--;
@@ -100,11 +106,11 @@ void CardViewer::on_leftBtn_clicked()
 void CardViewer::on_rightBtn_clicked()
 {
     //Load card thats on the right if it exists
-    if(cardlist_->current() != cardlist_->next())
+    if(cardlist_->peek_next())
     {
         //Next card was not the current card so we haven't reach the end yet. Show new card
-        cardlist_->current()->display(); //next() sets current() to the next card value
-        emit moveRight(); //Shows the transition and new card
+        cardlist_->next()->display(); //next() sets current() to the next card value
+        emit moveLeft(); //Shows the transition and new card
 
         //Update card num label
         card_num_++;

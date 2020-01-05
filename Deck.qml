@@ -22,9 +22,9 @@ Item { //Base of the deck
         acceptedButtons: Qt.LeftButton | Qt.RightButton
         onClicked: {
             if( mouse.button == Qt.RightButton ){
-                cardHolder.rightShift();
+                cardHolder.rightShiftActivated();
             } else{
-                cardHolder.leftShift();
+                cardHolder.leftShiftActivated();
             }
 
             console.log("click click");
@@ -54,6 +54,14 @@ Item { //Base of the deck
             target: signalContext
             onMoveLeft: cardHolder.leftShift()
             onMoveRight: cardHolder.rightShift()
+        }
+
+        signal leftShiftActivated();
+        signal rightShiftActivated();
+
+        Component.onCompleted: {
+            cardHolder.leftShiftActivated.connect(signalContext.on_rightBtn_clicked);
+            cardHolder.rightShiftActivated.connect(signalContext.on_leftBtn_clicked);
         }
 
         //Functions for making left/right transitions

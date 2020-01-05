@@ -32,7 +32,7 @@ public:
     void shuffle(); //Suffle cardlist
     void addCards(std::shared_ptr<Cardlist> cardlist); //Add cardlist to the current list
 
-private slots:
+public slots:
     void on_leftBtn_clicked();
 
     void on_rightBtn_clicked();

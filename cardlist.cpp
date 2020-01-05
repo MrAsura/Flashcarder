@@ -2,13 +2,14 @@
 #include "global.h"
 using global::c_type_id_t;
 
+#include <chrono>
 #include <list>
 #include <algorithm>
 #include <iterator>
 
 Cardlist::Cardlist(): size_(0), first_(nullptr), last_(nullptr), current_(nullptr)
 {
-
+    e_.seed(std::chrono::system_clock::now().time_since_epoch().count());
 }
 
 Cardlist::Cardlist(Cardlist::card_ptr card)
@@ -59,7 +60,7 @@ Cardlist *Cardlist::shuffle()
     Container* cur = first_;
     std::vector<Container*> conts(0);
 
-    while( cur->next != nullptr )
+    while( cur != nullptr )
     {
         conts.push_back(cur);
         cur = cur->next;
@@ -92,8 +93,14 @@ Cardlist::card_ptr Cardlist::current()
 
 Cardlist::card_ptr Cardlist::next()
 {
-    if(current_ && current_->prev) current_ = current_->next;
+    if(current_ && current_->next) current_ = current_->next;
     if(current_) return current_->card;
+    return nullptr;
+}
+
+Cardlist::card_ptr Cardlist::peek_next()
+{
+    if(current_ && current_->next) return current_->next->card;
     return nullptr;
 }
 
@@ -101,6 +108,12 @@ Cardlist::card_ptr Cardlist::prev()
 {
     if(current_ && current_->prev) current_ = current_->prev;
     if(current_) return current_->card;
+    return nullptr;
+}
+
+Cardlist::card_ptr Cardlist::peek_prev()
+{
+    if(current_ && current_->prev) return current_->prev->card;
     return nullptr;
 }
 
@@ -153,6 +166,7 @@ Cardlist *Cardlist::addCard(Cardlist::card_ptr card)
     else
     {
         link(last_,cont);
+        last_ = cont;
     }
 
     ++size_;
@@ -194,26 +208,18 @@ void Cardlist::link(Cardlist::Container *first, Cardlist::Container *second)
 
 std::vector<std::pair<int, int> > Cardlist::getOrder(unsigned int size, std::pair<int,int>& fl)
 {
-    std::list<int> firsts(size);
-    std::generate_n( firsts.begin(), size, []()->int{ static int num = 0; return num++; });
-    std::list<int> seconds(firsts);
-
+    std::vector<int> inds(size);
+    unsigned tmp = 0;
+    std::generate_n( inds.begin(), size, [&tmp]()->int{return tmp++; });
+    std::shuffle(inds.begin(), inds.end(), e_);
     std::vector<std::pair<int,int>> pairs(0);
 
-    //pick random ind from first and second and remove them from the list
-    while( firsts.size() > 1 )
+    for(unsigned i = 1; i < inds.size(); i++)
     {
-        std::uniform_int_distribution<int> d(0,firsts.size()-1);
-        std::list<int>::iterator f_it = firsts.begin();
-        std::list<int>::iterator s_it = seconds.begin();
-        std::advance(f_it,d(e_));
-        std::advance(s_it,d(e_));
-        pairs.emplace_back(std::pair<int,int>(*f_it,*s_it));
-        firsts.erase(f_it);
-        seconds.erase(s_it);
+        pairs.emplace_back(std::make_pair(inds[i-1], inds[i]));
     }
 
-    fl = std::make_pair(*firsts.begin(),*seconds.begin());
+    fl = std::make_pair(inds.front(), inds.back());
 
     return pairs;
 }
