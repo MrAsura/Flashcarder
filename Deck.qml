@@ -58,17 +58,20 @@ Item { //Base of the deck
 
         //Functions for making left/right transitions
         function leftShift(){
+            console.log("Move Left");
             //Performe the leftward movement of the card
             if(cardHolder.state === "visible" ){
                 cardHolder.state = "exit_left";
             }
         }
         function rightShift(){
+            console.log("Move Right");
             if(cardHolder.state === "visible" ){
                 cardHolder.state = "exit_right";
             }
         }
         function showNewCard(){
+            console.log("Show New card");
             cardLoader.showNew();
         }
 
