@@ -6,5 +6,6 @@
         <file>Deck.qml</file>
         <file>CardLoader.qml</file>
         <file>FlipableCardBase.qml</file>
+        <file>CardTypeDictEx.qml</file>
     </qresource>
 </RCC>

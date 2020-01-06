@@ -43,4 +43,5 @@ FORMS    += mainwindow.ui \
 RESOURCES += qml.qrc
 
 DISTFILES += data/types/CardTypeOne.qml \
-    data/types/SimpleCardTypeOne.qml
+    data/types/SimpleCardTypeOne.qml \
+    data/types/SimpleCardTypeDictEx.qml
