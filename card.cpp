@@ -45,13 +45,14 @@ void Card::clearKeywords()
     keywords_.clear();
 }
 
-void Card::display(bool immediate)
+void Card::display(bool flipped, bool immediate)
 {
     //Call the context load function and pass data to it
     //param1: url for qml card type, param2: data for loading the card, param3: If the card is loaded immedietly
     QMetaObject::invokeMethod(context_, global::LOAD_FUNC_NAME, Q_ARG(QVariant,QVariant::fromValue(CardFactory::getInstance().getUrl(type_))),
                                                Q_ARG(QVariant,QVariant::fromValue(data_)),
-                                               Q_ARG(QVariant,QVariant::fromValue(immediate)));
+                                               Q_ARG(QVariant,QVariant::fromValue(immediate)),
+                                               Q_ARG(QVariant,QVariant::fromValue(flipped)));
     //emit displayCard(QVariant::fromValue(CardFactory::getInstance().getUrl(type_)), QVariant::fromValue(data_));
 }
 

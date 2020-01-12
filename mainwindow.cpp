@@ -138,14 +138,14 @@ QWidget *MainWindow::makeCardPreview( QWidget* parent )
     param.insert("num",50);
     QQuickItem* root = loader->rootObject();
     QObject* call_obj = root;
-    QMetaObject::invokeMethod(call_obj,global::LOAD_FUNC_NAME, Q_ARG(QVariant,url), Q_ARG(QVariant,QVariant::fromValue(param)), Q_ARG(QVariant,QVariant::fromValue(true)));
+    QMetaObject::invokeMethod(call_obj,global::LOAD_FUNC_NAME, Q_ARG(QVariant,url), Q_ARG(QVariant,QVariant::fromValue(param)), Q_ARG(QVariant,QVariant::fromValue(true)),Q_ARG(QVariant,QVariant::fromValue(false)));
     QMetaObject::invokeMethod(call_obj,"printTest");
 
     //Try loading a card in the deck as well
     root = deck->rootObject();
     call_obj = root->findChild<QObject*>("CardLoader");
     url = QUrl::fromLocalFile(def_type_dir_+"/CardTypeOne.qml");
-    QMetaObject::invokeMethod(call_obj,global::LOAD_FUNC_NAME, Q_ARG(QVariant,url), Q_ARG(QVariant,QVariant::fromValue(param)),Q_ARG(QVariant,QVariant::fromValue(true)));
+    QMetaObject::invokeMethod(call_obj,global::LOAD_FUNC_NAME, Q_ARG(QVariant,url), Q_ARG(QVariant,QVariant::fromValue(param)),Q_ARG(QVariant,QVariant::fromValue(true)),Q_ARG(QVariant,QVariant::fromValue(false)));
 
     wid->setLayout(lo);
 
@@ -165,7 +165,7 @@ void MainWindow::reloadDir()
     //Reset current card list
     for (QAction *action : ui->menuDictionaries->actions())
     {
-        if (!action->isSeparator() && action->objectName() != "actionShuffle")
+        if (!action->isSeparator() && action->objectName() != "actionShuffle" && action->objectName() != "actionFlipped")
         {
             ui->menuDictionaries->removeAction(action);
         }
@@ -217,7 +217,7 @@ void MainWindow::reloadCardlist()
     std::shared_ptr<Cardlist> new_list( new Cardlist() );
     for( QAction* action : ui->menuDictionaries->actions())
     {
-        if(action->isChecked() && !action->isSeparator() && action->objectName() != "Shuffle")
+        if(action->isChecked() && !action->isSeparator() && action->objectName() != "actionShuffle" && action->objectName() != "actionFlipped")
         {
             new_list->combine(*addCards(action));
         }
@@ -288,7 +288,7 @@ void MainWindow::on_actionShuffle_toggled(bool is_shuffled)
 
 void MainWindow::on_menuDictionaries_triggered(QAction *action)
 {
-    if(!action->isSeparator() && action->objectName() != "actionShuffle")
+    if(!action->isSeparator() && action->objectName() != "actionShuffle" && action->objectName() != "actionFlipped")
     {
         qDebug("Dict menu action triggered");
         if(action->isChecked())
@@ -300,4 +300,9 @@ void MainWindow::on_menuDictionaries_triggered(QAction *action)
             removeCards(action);
         }
     }
+}
+
+void MainWindow::on_actionFlipped_toggled(bool flipped)
+{
+     cont_->findChild<CardViewer*>("CardViewer")->setFlipped(flipped);
 }

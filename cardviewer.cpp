@@ -12,7 +12,8 @@ CardViewer::CardViewer(QWidget *parent, std::shared_ptr<Cardlist> list) :
     ui(new Ui::CardViewer),
     cardlist_(list),
     card_num_(0),
-    card_count_(0)
+    card_count_(0),
+    flipped_(false)
 {
     qDebug("CardViewer building...");
 
@@ -73,7 +74,7 @@ void CardViewer::updateView()
     if (card_count_ > 0)
     {
         card_num_ = 1;
-        cardlist_->first()->display(true);
+        cardlist_->first()->display(flipped_, true);
     }
 
     updateLabel();
@@ -85,13 +86,18 @@ void CardViewer::updateLabel()
     ui->cardCountLabel->setText(QString("%1 of %2").arg(card_num_).arg(card_count_));
 }
 
+void CardViewer::setFlipped(const unsigned &flipped)
+{
+    flipped_ = flipped;
+}
+
 void CardViewer::on_leftBtn_clicked()
 {
     //Load card thats on the left if it exists
     if(cardlist_->peek_prev())
     {
         //Prev card was not the current card so we haven't reach the start yet. Show new card
-        cardlist_->prev()->display(); //prev() sets current() to the prev card value
+        cardlist_->prev()->display(flipped_); //prev() sets current() to the prev card value
         emit moveRight(); //Shows the transition and new card
 
         //Update card num label
@@ -109,7 +115,7 @@ void CardViewer::on_rightBtn_clicked()
     if(cardlist_->peek_next())
     {
         //Next card was not the current card so we haven't reach the end yet. Show new card
-        cardlist_->next()->display(); //next() sets current() to the next card value
+        cardlist_->next()->display(flipped_); //next() sets current() to the next card value
         emit moveLeft(); //Shows the transition and new card
 
         //Update card num label

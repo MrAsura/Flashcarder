@@ -13,9 +13,10 @@ Item {
     //Loads the new card but don't display it yet
     property var cur_card;
     property var new_card;
-    function load(url, param, load_imidiate)
+    function load(url, param, load_imidiate, flipped)
     {
         load_imidiate = typeof load_imidiate !== 'undefined' ? load_imidiate : true;
+        flipped = typeof flipped !== 'undefined' ? flipped : true;
 
         var comp = Qt.createComponent(url);
         param.visible = false; //Hide the new card for now.
@@ -33,6 +34,9 @@ Item {
 
         if(load_imidiate){
             showNew();
+        }
+        if(flipped){
+            new_card.flipped = flipped;
         }
     }
 

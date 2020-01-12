@@ -32,6 +32,8 @@ public:
     void shuffle(); //Suffle cardlist
     void addCards(std::shared_ptr<Cardlist> cardlist); //Add cardlist to the current list
 
+    void setFlipped(const unsigned &flipped);
+
 public slots:
     void on_leftBtn_clicked();
 
@@ -52,6 +54,8 @@ private:
 
     unsigned int card_num_; //Number of current card
     unsigned int card_count_; //Total number of cards
+
+    unsigned flipped_; //If cards should be loaded flipped
 };
 
 #endif // CARDVIEWER_H

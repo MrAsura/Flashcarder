@@ -51,6 +51,7 @@
      <string>Lists</string>
     </property>
     <addaction name="actionShuffle"/>
+    <addaction name="actionFlipped"/>
     <addaction name="separator"/>
    </widget>
    <addaction name="menuFlashcarder"/>
@@ -125,6 +126,17 @@
    </property>
    <property name="toolTip">
     <string>Shuffle list of currently selected cards</string>
+   </property>
+  </action>
+  <action name="actionFlipped">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Flipped</string>
+   </property>
+   <property name="toolTip">
+    <string>Cards will be loaded flipped</string>
    </property>
   </action>
  </widget>

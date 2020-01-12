@@ -36,6 +36,8 @@ private slots:
 
     void on_menuDictionaries_triggered(QAction* action);
 
+    void on_actionFlipped_toggled(bool flipped);
+
 private:
     Ui::MainWindow *ui;
 
