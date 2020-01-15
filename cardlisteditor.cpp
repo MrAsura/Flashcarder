@@ -530,9 +530,10 @@ void CardlistEditor::updatePreview(QVariantMap card)
     QVariant url = QVariant::fromValue(CardFactory::getInstance().getUrl(type));
     QVariant param = card[CardFactory::cardTmplDataFieldName];
     QVariant immediate = QVariant::fromValue(true);
+    QVariant flipped = QVariant::fromValue(false);
     QObject* loader = ui->previewView->rootObject();
 
-    QMetaObject::invokeMethod( loader, global::LOAD_FUNC_NAME, Q_ARG(QVariant, url), Q_ARG(QVariant, param), Q_ARG(QVariant, immediate));
+    QMetaObject::invokeMethod( loader, global::LOAD_FUNC_NAME, Q_ARG(QVariant, url), Q_ARG(QVariant, param), Q_ARG(QVariant, immediate), Q_ARG(QVariant, flipped));
 
     ui->previewView->rootObject()->setVisible(true);
 }
