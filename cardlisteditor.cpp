@@ -456,7 +456,7 @@ void CardlistEditor::on_saveValBtn_clicked()
     int row = ui->curCardlistView->currentRow();
     int ind = row - 1;
 
-    if( ind >= 0 && ind < ui->curCardlistView->count() - 2)
+    if( ind >= 0 && ind < cur_list_.count())
     {
         //Update val of cur_list_
         saveFieldValue(ui->fieldEditArea->widget(), cur_list_[ind]);
@@ -472,14 +472,28 @@ void CardlistEditor::on_saveValBtn_clicked()
 
 void CardlistEditor::on_removeBtn_clicked()
 {
-    //Remove the currently selected item
+    //Remove the currently selected item if its not the first or last item (end marks)
     int row = ui->curCardlistView->currentRow();
     int ind = row - 1; //Map row to ind in cur_list_ (first row is not a card)
 
-    cur_list_.removeAt(ind);
-    removeRow(row);
+    if(ind >= 0 && ind < cur_list_.count())
+    {
+        cur_list_.removeAt(ind);
+        removeRow(row);
 
-    cur_list_saved_ = false;
+        if(cur_list_.count() == 0){
+            ui->curCardlistView->clear();
+            return;
+        }
+        else {
+            cur_list_saved_ = false;
+        }
+
+        if(ind == cur_list_.count()){
+            //Need to remove ',' from new last
+            updateRow(row - 1, cur_list_.back());
+        }
+    }
 }
 
 void CardlistEditor::on_curCardlistView_itemSelectionChanged()
@@ -489,7 +503,10 @@ void CardlistEditor::on_curCardlistView_itemSelectionChanged()
     //Get currently selected card's ind
     int ind = ui->curCardlistView->currentRow() - 1;
 
-    if( ind >= 0 && ind < ui->curCardlistView->count() - 2){
+    //If selection change triggered by removal, need to decrease ind by one to get correct card
+    if(cur_list_.count() < ui->curCardlistView->count() - 2) ind--;
+
+    if( ind >= 0 && ind < cur_list_.count()){
         QVariantMap card = cur_list_[ind].toMap();
         populateFieldEditArea(card);
         updatePreview(card);

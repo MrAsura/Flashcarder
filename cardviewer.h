@@ -20,6 +20,7 @@ signals:
     void moveLeft();
     void moveRight();
     void flip();
+    void reset();
 
 public:
     explicit CardViewer(QWidget *parent = 0, std::shared_ptr<Cardlist> list = nullptr);

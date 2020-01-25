@@ -54,6 +54,7 @@ Item { //Base of the deck
             target: signalContext
             onMoveLeft: cardHolder.leftShift()
             onMoveRight: cardHolder.rightShift()
+            onReset: cardHolder.reset()
         }
 
         signal leftShiftActivated();
@@ -78,6 +79,11 @@ Item { //Base of the deck
                 cardHolder.state = "exit_right";
             }
         }
+        function reset(){
+            console.log("Reset")
+            if(cardLoader.cur_card !== null && typeof cardLoader.cur_card !== 'undefined') cardLoader.cur_card.destroy();
+        }
+
         function showNewCard(){
             console.log("Show New card");
             cardLoader.showNew();

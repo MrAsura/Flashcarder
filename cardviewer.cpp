@@ -76,6 +76,9 @@ void CardViewer::updateView()
         card_num_ = 1;
         cardlist_->first()->display(flipped_, true);
     }
+    else {
+        reset();
+    }
 
     updateLabel();
 }

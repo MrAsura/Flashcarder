@@ -62,6 +62,7 @@ Item {
             cur_card.destroy();
         }
         cur_card = new_card;
+        new_card = null;
         console.log("New card set to visible");
     }
 }
