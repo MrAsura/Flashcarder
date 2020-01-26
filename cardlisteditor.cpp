@@ -6,7 +6,6 @@
 #include <QDebug>
 #include <QStringList>
 #include <QJsonDocument>
-#include <QFile>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QListWidgetItem>
@@ -29,6 +28,7 @@ CardlistEditor::CardlistEditor(QWidget *parent, QString def_dir) :
     ui(new Ui::CardlistEditor),
     def_dir_(def_dir),
     cur_file_name_(""),
+    cur_file_(nullptr),
     cur_list_saved_(true),
     cur_card_saved_(true),
     cur_list_(QVariantList())
@@ -48,6 +48,7 @@ CardlistEditor::CardlistEditor(QWidget *parent, QString def_dir) :
 
 CardlistEditor::~CardlistEditor()
 {
+    delete cur_file_;
     delete ui;
 }
 
@@ -67,6 +68,8 @@ void CardlistEditor::on_newListBtn_clicked()
     //Create a new list and insert a card from the currently selected type
     cur_list_.clear();
     cur_file_name_ = "";
+    delete cur_file_;
+    cur_file_ = nullptr;
     cur_list_saved_ = false;
 
     addNewCardTemplate();
@@ -406,10 +409,68 @@ int CardlistEditor::openUnsaveWorkDialog()
 {
     QMessageBox msg;
     msg.setText("There are unsaved changes in the current list.");
-    msg.setInformativeText("Do you wan't to continue and lose your progress?");
+    msg.setInformativeText("Do you want to continue and lose your progress?");
     msg.setStandardButtons(QMessageBox::Ok|QMessageBox::Cancel);
     msg.setDefaultButton(QMessageBox::Cancel);
     return msg.exec();
+}
+
+bool CardlistEditor::openNewFile(bool open_save_file)
+{
+    QString file_name = "";
+    //TODO: Move file type to factory etc
+    if(open_save_file)
+    {
+        file_name = QFileDialog::getSaveFileName(this,tr("Save current list"),def_dir_+cur_file_name_, "Cardlist (*.cards)");
+    }
+    else {
+        file_name = QFileDialog::getOpenFileName(this,tr("Load cardlist"), def_dir_, "Cardlist (*.cards)");
+    }
+
+    if(file_name == "")
+    {
+        //If filename empty assume cancle
+        return false;
+    }
+
+    if(cur_file_){
+        cur_file_->close();
+        delete cur_file_;
+    }
+    cur_file_ = new QFile(file_name);
+    cur_file_name_ = "";
+
+    if(cur_file_->exists())
+    {
+        if(!cur_file_->open(QFile::ReadWrite | QFile::Text))
+        {
+            delete cur_file_;
+            cur_file_ = nullptr;
+            QMessageBox::warning(this, "FlashCarder", "Failed to open file");
+            return false;
+        }
+
+    }
+    else
+    {
+        delete cur_file_;
+        cur_file_ = nullptr;
+        QMessageBox::warning(this, "FlashCarder", "File does not exist");
+        return false;
+    }
+
+    cur_file_name_ = file_name;
+
+    return true;
+}
+
+bool CardlistEditor::saveCurList()
+{
+    bool ret_val = cur_file_->reset();
+    ret_val = ret_val && (-1 != cur_file_->write(QJsonDocument::fromVariant(QVariant::fromValue(cur_list_)).toJson()));
+    ret_val = ret_val && cur_file_->resize(cur_file_->pos());
+    //file.close();
+    return ret_val;
 }
 
 void CardlistEditor::on_openFileBtn_clicked()
@@ -420,35 +481,35 @@ void CardlistEditor::on_openFileBtn_clicked()
         if( ret_val == QMessageBox::Cancel ) return;
     }
 
-    QString file_name = QFileDialog::getOpenFileName(this,tr("Load cardlist"), def_dir_,tr( "Cardlist (*.cards)"));
-    QFile file(file_name);
-    file.open(QFile::ReadOnly);
+    if(openNewFile())
+    {
+        QByteArray data = cur_file_->readAll();
+        //cur_file_->close();
 
-    QByteArray data = file.readAll();
-    file.close();
+        //Format file data with QJsonDocumentclass
+        cur_list_ = QJsonDocument::fromJson(data).toVariant().toList();
+        populateCardlistView();
 
-    cur_file_name_ = file_name;
-
-    //Format file data with QJsonDocumentclass
-    cur_list_ = QJsonDocument::fromJson(data).toVariant().toList();
-    populateCardlistView();
-
-    cur_list_saved_ = true;
+        cur_list_saved_ = true;
+    }
 }
 
 void CardlistEditor::on_saveFileBtn_clicked()
 {
-    //TODO: Move file type to factory etc
-    QString file_ending = "Cardlist (*.cards)";
-
-    QString file_name = QFileDialog::getSaveFileName(this,tr("Save current list"),def_dir_+cur_file_name_, file_ending);
-
-    QFile file(file_name);
-    file.open(QFile::WriteOnly);
-    file.write(QJsonDocument::fromVariant(QVariant::fromValue(cur_list_)).toJson());
-    file.close();
-
-    cur_list_saved_ = true;
+    if(!cur_list_saved_)
+    {
+        if(!cur_file_)
+        {
+            if(!openNewFile(true))
+            {
+                return;
+            }
+        }
+        if(saveCurList())
+        {
+          cur_list_saved_ = true;
+        }
+    }
 }
 
 void CardlistEditor::on_saveValBtn_clicked()
@@ -553,4 +614,16 @@ void CardlistEditor::updatePreview(QVariantMap card)
     QMetaObject::invokeMethod( loader, global::LOAD_FUNC_NAME, Q_ARG(QVariant, url), Q_ARG(QVariant, param), Q_ARG(QVariant, immediate), Q_ARG(QVariant, flipped));
 
     ui->previewView->rootObject()->setVisible(true);
+}
+
+void CardlistEditor::on_saveAsFileBtn_clicked()
+{
+    if(!openNewFile(true))
+    {
+        return;
+    }
+    if(saveCurList())
+    {
+        cur_list_saved_ = true;
+    }
 }

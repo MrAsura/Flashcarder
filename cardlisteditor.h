@@ -6,6 +6,7 @@
 #include <QVariantList>
 #include <QLayout>
 #include <QUrl>
+#include <QFile>
 
 #include "global.h"
 using global::c_type_id_t;
@@ -41,11 +42,14 @@ private slots:
 
     void set_unsaved_changes_status(); //Sets cur_card_saved_ to false
 
+    void on_saveAsFileBtn_clicked();
+
 private:
     Ui::CardlistEditor *ui;
 
     QString def_dir_;
     QString cur_file_name_;
+    QFile *cur_file_;
     bool cur_list_saved_; //Track if progress has been saved
     bool cur_card_saved_; //Check if currently selected card has altered values
 
@@ -93,6 +97,8 @@ private:
     QVariant &addNewCardTemplate(c_type_id_t type = c_type_id_t());
 
     int openUnsaveWorkDialog();
+    bool openNewFile(bool open_save_file = false);
+    bool saveCurList();
 };
 
 #endif // CARDLISTEDITOR_H
