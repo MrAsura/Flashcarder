@@ -9,7 +9,6 @@
 #include "card.h"
 using global::c_type_id_t;
 
-#include <QDir>
 #include <QFileDialog>
 #include <QDebug>
 #include <QGridLayout>
@@ -24,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent) :
     def_dir_(""),
     def_type_dir_(""),
     cont_(),
-    is_suffled(false)
+    is_shuffled_(false)
 {
     ui->setupUi(this);
 
@@ -161,47 +160,91 @@ QString MainWindow::getNewDir(QString dir_to_ask_for)
                                              | QFileDialog::DontResolveSymlinks);
 }
 
+bool MainWindow::populateMenu(QMenu *menu, QDir &path)
+{
+    //Insert files to the menu list
+    bool files_added = addFiles(menu, path);
+
+    //Insert Directories
+    bool dirs_added = addDirs(menu, path);
+
+    return files_added || dirs_added;
+}
+
+bool MainWindow::addDirs(QMenu *parent, QDir &dirs)
+{
+    QFileInfoList dir_names = dirs.entryInfoList(QDir::AllDirs | QDir::NoDotAndDotDot);
+    bool files_added = false;
+    for(QFileInfo dir: dir_names)
+    {
+        QMenu *new_menu = parent->addMenu(dir.fileName());
+        new_menu->setObjectName("actionMenu");
+        QDir new_dir(dir.absoluteFilePath());
+
+        if(populateMenu(new_menu, new_dir)) {
+            files_added = true;
+        }
+        else
+        {
+            parent->removeAction(new_menu->menuAction());
+        }
+    }
+    return files_added;
+}
+
+bool MainWindow::addFiles(QMenu *menu, QDir &files)
+{
+    QStringList type_list[] = {QStringList("*.dict"), QStringList("*.cards")};
+    bool files_added = false;
+
+    //Add select all button for selecting sub actions
+    QAction *select = menu->addAction("Select All");
+    select->setObjectName("actionSelectAll");
+    select->setCheckable(true);
+    menu->addSeparator();
+    //connect(ui->actionClear, &QAction::triggered, select, &QAction::setChecked);
+
+    for(QStringList &types: type_list)
+    {
+        files.setNameFilters(types);
+        QFileInfoList entries = files.entryInfoList(types, QDir::Files);
+
+        for(QFileInfo &entry: entries)
+        {
+            QAction* act = menu->addAction(entry.fileName());
+            act->setData(entry.absoluteFilePath());
+            act->setCheckable(true);
+            files_added = true;
+
+            //Add connections
+            // Connect to clear and select all
+            //connect(select, &QAction::triggered, act, &QAction::trigger);
+            //connect(act, &QAction::triggered, select, &QAction::setChecked);
+            //connect(ui->actionClear, &QAction::triggered, act, &QAction::setChecked);
+        }
+        if(entries.size() > 0) menu->addSeparator();
+    }
+    return files_added;
+}
+
 void MainWindow::reloadDir()
 {
     //Reset current card list
     for (QAction *action : ui->menuDictionaries->actions())
     {
-        if (!action->isSeparator() && action->objectName() != "actionShuffle" && action->objectName() != "actionFlipped")
+        if (action->objectName() != "actionShuffle" && action->objectName() != "actionFlipped" && action->objectName() != "actionClear")
         {
             ui->menuDictionaries->removeAction(action);
         }
     }
     //ui->menuDictionaries->clear();
+    ui->menuDictionaries->addSeparator();
 
     //Read cardtypes
     CardFactory::getInstance().readCardtypes( def_dir_ );
 
-    //Insert .dict files to the menu list
     QDir dir(def_dir_);
-    dir.setFilter( QDir::Files);
-    dir.setNameFilters(QStringList("*.dict"));
-    QStringList dicts = dir.entryList();
-
-    for( QString dict: dicts)
-    {
-        QAction* act = new QAction(dict,ui->menuDictionaries);
-        act->setData(QDir::toNativeSeparators(def_dir_ + "/" + dict));
-        act->setCheckable(true);
-        ui->menuDictionaries->addAction(act);
-    }
-
-    ui->menuDictionaries->addSeparator();
-
-    dir.setNameFilters(QStringList("*.cards"));
-    dicts = dir.entryList();
-
-    for( QString dict: dicts)
-    {
-        QAction* act = new QAction(dict,ui->menuDictionaries);
-        act->setData(QDir::toNativeSeparators(def_dir_ + "/" + dict));
-        act->setCheckable(true);
-        ui->menuDictionaries->addAction(act);
-    }
+    populateMenu(ui->menuDictionaries, dir);
 }
 
 void MainWindow::reloadWidgets()
@@ -212,21 +255,45 @@ void MainWindow::reloadWidgets()
     cont_->findChild<CardlistEditor*>("CardlistEditor")->setDir(def_dir_);
 }
 
+void MainWindow::recursiveAddCards(QMenu *menu, std::shared_ptr<Cardlist> list)
+{
+    for( QAction* action : menu->actions())
+    {
+        if(action->isChecked() && action->objectName() != "actionShuffle" && action->objectName() != "actionFlipped" && action->objectName() != "actionSelectAll")
+        {
+            list->combine(*addCards(action));
+        }
+        else if(action->menu())
+        {
+            recursiveAddCards(action->menu(), list);
+        }
+    }
+}
+
 void MainWindow::reloadCardlist()
 {
     //Get proper cardlist from the selected cards
     std::shared_ptr<Cardlist> new_list( new Cardlist() );
-    for( QAction* action : ui->menuDictionaries->actions())
-    {
-        if(action->isChecked() && !action->isSeparator() && action->objectName() != "actionShuffle" && action->objectName() != "actionFlipped")
-        {
-            new_list->combine(*addCards(action));
-        }
-    }
+    recursiveAddCards(ui->menuDictionaries, new_list);
 
     cont_->findChild<CardViewer*>("CardViewer")->setCardlist(new_list);
     cont_->findChild<CardViewer*>("CardViewer")->resetCardlist();
     if(is_shuffled_) cont_->findChild<CardViewer*>("CardViewer")->shuffle();
+}
+
+void MainWindow::recursiveSetActionChecked(QMenu *menu, bool checked)
+{
+    for(QAction *action: menu->actions())
+    {
+        if(action->isCheckable() && !action->isSeparator() && action->objectName() != "actionShuffle" && action->objectName() != "actionFlipped")
+        {
+            action->setChecked(checked);
+        }
+        else if(action->menu())
+        {
+            recursiveSetActionChecked(action->menu(), checked);
+        }
+    }
 }
 
 std::shared_ptr<Cardlist> MainWindow::addCards(QAction *action)
@@ -278,7 +345,7 @@ void MainWindow::on_actionEdit_Create_Cardlists_triggered()
 
 void MainWindow::on_actionShuffle_toggled(bool is_shuffled)
 {
-    is_shuffled_ = is_suffled;
+    is_shuffled_ = is_shuffled;
     if(is_shuffled){
         cont_->findChild<CardViewer*>("CardViewer")->shuffle();
     }
@@ -294,13 +361,32 @@ void MainWindow::on_menuDictionaries_triggered(QAction *action)
     if(!action->isSeparator() && action->objectName() != "actionShuffle" && action->objectName() != "actionFlipped")
     {
         qDebug("Dict menu action triggered");
-        if(action->isChecked())
+        if(action->objectName() == "actionClear")
+        {
+            //Clear all the selections
+            recursiveSetActionChecked(ui->menuDictionaries, false);
+            reloadCardlist(); //Need to reset the cardlist
+        }
+        else if(action->objectName() == "actionSelectAll")
+        {
+            recursiveSetActionChecked(qobject_cast<QMenu*>(action->parentWidget()), action->isChecked());
+            reloadCardlist();
+        }
+        else if(action->isChecked())
         {
             cont_->findChild<CardViewer*>("CardViewer")->addCards(addCards(action));
             if(is_shuffled_) cont_->findChild<CardViewer*>("CardViewer")->shuffle();
         }
         else
         {
+            //Un-check the select all if it is checked
+            QWidget *parent = action->parentWidget();
+            while(parent->findChild<QAction*>("actionSelectAll"))
+            {
+                parent->findChild<QAction*>("actionSelectAll")->setChecked(false);
+                parent = parent->parentWidget();
+            }
+
             removeCards(action);
         }
     }
@@ -308,5 +394,5 @@ void MainWindow::on_menuDictionaries_triggered(QAction *action)
 
 void MainWindow::on_actionFlipped_toggled(bool flipped)
 {
-     cont_->findChild<CardViewer*>("CardViewer")->setFlipped(flipped);
+    cont_->findChild<CardViewer*>("CardViewer")->setFlipped(flipped);
 }

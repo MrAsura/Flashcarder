@@ -20,7 +20,7 @@
      <x>0</x>
      <y>0</y>
      <width>762</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFlashcarder">
@@ -52,6 +52,7 @@
     </property>
     <addaction name="actionShuffle"/>
     <addaction name="actionFlipped"/>
+    <addaction name="actionClear"/>
     <addaction name="separator"/>
    </widget>
    <addaction name="menuFlashcarder"/>
@@ -137,6 +138,16 @@
    </property>
    <property name="toolTip">
     <string>Cards will be loaded flipped</string>
+   </property>
+  </action>
+  <action name="actionDgfd">
+   <property name="text">
+    <string>dgfd</string>
+   </property>
+  </action>
+  <action name="actionClear">
+   <property name="text">
+    <string>Clear</string>
    </property>
   </action>
  </widget>

@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QStackedWidget>
 #include <QHash>
+#include <QDir>
 
 #include <cardlist.h>
 
@@ -49,8 +50,13 @@ private:
     QWidget* makeCardPreview(QWidget *parent);
     QString getNewDir(QString dir_to_ask_for = "data");
     void reloadDir(); //Update files based on def_dir_
+    bool addFiles(QMenu *menu, QDir &files);
+    bool addDirs(QMenu *parent, QDir &dirs);
+    bool populateMenu(QMenu *menu, QDir &path);
     void reloadWidgets(); //Update widgets
     void reloadCardlist(); //Update cardlist
+    void recursiveAddCards(QMenu *menu, std::shared_ptr<Cardlist> list);
+    void recursiveSetActionChecked(QMenu *menu, bool checked);
 
     //Manage cards in cardlist
     std::shared_ptr<Cardlist> addCards(QAction *action);
