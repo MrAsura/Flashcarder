@@ -44,6 +44,7 @@ private:
     QString def_dir_; //TODO: Use a proper dir type?
     QString def_type_dir_;
     QStackedWidget* cont_;
+    bool is_shuffled_;
 
     QWidget* makeCardPreview(QWidget *parent);
     QString getNewDir(QString dir_to_ask_for = "data");

@@ -23,7 +23,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow),
     def_dir_(""),
     def_type_dir_(""),
-    cont_()
+    cont_(),
+    is_suffled(false)
 {
     ui->setupUi(this);
 
@@ -225,6 +226,7 @@ void MainWindow::reloadCardlist()
 
     cont_->findChild<CardViewer*>("CardViewer")->setCardlist(new_list);
     cont_->findChild<CardViewer*>("CardViewer")->resetCardlist();
+    if(is_shuffled_) cont_->findChild<CardViewer*>("CardViewer")->shuffle();
 }
 
 std::shared_ptr<Cardlist> MainWindow::addCards(QAction *action)
@@ -276,6 +278,7 @@ void MainWindow::on_actionEdit_Create_Cardlists_triggered()
 
 void MainWindow::on_actionShuffle_toggled(bool is_shuffled)
 {
+    is_shuffled_ = is_suffled;
     if(is_shuffled){
         cont_->findChild<CardViewer*>("CardViewer")->shuffle();
     }
@@ -294,6 +297,7 @@ void MainWindow::on_menuDictionaries_triggered(QAction *action)
         if(action->isChecked())
         {
             cont_->findChild<CardViewer*>("CardViewer")->addCards(addCards(action));
+            if(is_shuffled_) cont_->findChild<CardViewer*>("CardViewer")->shuffle();
         }
         else
         {
