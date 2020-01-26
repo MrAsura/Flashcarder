@@ -99,6 +99,8 @@ private:
     int openUnsaveWorkDialog();
     bool openNewFile(bool open_save_file = false);
     bool saveCurList();
+
+    void setCurListSaved(bool value);
 };
 
 #endif // CARDLISTEDITOR_H

@@ -44,6 +44,9 @@ CardlistEditor::CardlistEditor(QWidget *parent, QString def_dir) :
 
     //Init preview with a card loader
     ui->previewView->setSource(PREVIEWER);
+
+    //Hide unsaved label
+    ui->notSavedLabel->hide();
 }
 
 CardlistEditor::~CardlistEditor()
@@ -70,7 +73,7 @@ void CardlistEditor::on_newListBtn_clicked()
     cur_file_name_ = "";
     delete cur_file_;
     cur_file_ = nullptr;
-    cur_list_saved_ = false;
+    setCurListSaved(false);
 
     addNewCardTemplate();
 
@@ -90,7 +93,7 @@ void CardlistEditor::on_newCardBtn_clicked()
     int new_row = ui->curCardlistView->count()-1;
     addRow(new_row, addNewCardTemplate() );
 
-    cur_list_saved_ = false;
+    setCurListSaved(false);
 
     //Set newly created card as the selected one
     ui->curCardlistView->setCurrentRow(ui->curCardlistView->count()-2);
@@ -490,7 +493,7 @@ void CardlistEditor::on_openFileBtn_clicked()
         cur_list_ = QJsonDocument::fromJson(data).toVariant().toList();
         populateCardlistView();
 
-        cur_list_saved_ = true;
+        setCurListSaved(true);
     }
 }
 
@@ -507,7 +510,7 @@ void CardlistEditor::on_saveFileBtn_clicked()
         }
         if(saveCurList())
         {
-          cur_list_saved_ = true;
+          setCurListSaved(true);
         }
     }
 }
@@ -526,7 +529,7 @@ void CardlistEditor::on_saveValBtn_clicked()
         //Update the row whose value has been changed
         updateRow(row, cur_list_[ind]);
 
-        cur_list_saved_ = false;
+        setCurListSaved(false);
         cur_card_saved_ = true;
     }
 }
@@ -547,7 +550,7 @@ void CardlistEditor::on_removeBtn_clicked()
             return;
         }
         else {
-            cur_list_saved_ = false;
+            setCurListSaved(false);
         }
 
         if(ind == cur_list_.count()){
@@ -624,6 +627,19 @@ void CardlistEditor::on_saveAsFileBtn_clicked()
     }
     if(saveCurList())
     {
-        cur_list_saved_ = true;
+        setCurListSaved(true);
+    }
+}
+
+void CardlistEditor::setCurListSaved(bool value)
+{
+    cur_list_saved_ = value;
+    if(value){
+        ui->notSavedLabel->hide();
+        ui->savedLable->show();
+    }
+    else{
+        ui->notSavedLabel->show();
+        ui->savedLable->hide();
     }
 }
