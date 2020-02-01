@@ -25,6 +25,9 @@ public:
 
     void setDir(const QString &def_dir);
 
+signals:
+    void newCardlistAdded();
+
 private slots:
     void on_newListBtn_clicked();
 

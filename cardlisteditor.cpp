@@ -442,8 +442,9 @@ bool CardlistEditor::openNewFile(bool open_save_file)
     }
     cur_file_ = new QFile(file_name);
     cur_file_name_ = "";
+    bool exists = cur_file_->exists();
 
-    if(cur_file_->exists())
+    if(exists || open_save_file)
     {
         if(!cur_file_->open(QFile::ReadWrite | QFile::Text))
         {
@@ -452,7 +453,7 @@ bool CardlistEditor::openNewFile(bool open_save_file)
             QMessageBox::warning(this, "FlashCarder", "Failed to open file");
             return false;
         }
-
+        if(!exists && open_save_file) emit newCardlistAdded();
     }
     else
     {

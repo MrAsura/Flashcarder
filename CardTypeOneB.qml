@@ -39,13 +39,11 @@ Rectangle {
     border.width: 4
 
     Text {
-        height: 5
         text: kanji
-        font.pointSize: 134
-        anchors.top: parent.top
-        anchors.topMargin: 10
-        anchors.left: parent.left
-        anchors.leftMargin: 10
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.horizontalCenter: parent.horizontalCenter
+        font.family: "Yu Mincho"
+        font.pointSize: 130
     }
     Text{
         x: 12

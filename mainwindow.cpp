@@ -54,16 +54,21 @@ MainWindow::MainWindow(QWidget *parent) :
     //Widgets should be added in the order they are in the menu
     QStackedWidget* cont = new QStackedWidget(ui->centralWidget);
 
+    CardlistEditor *cardedit = new CardlistEditor(cont, def_dir_);
+
     cont->addWidget( new CardViewer(cont, std::shared_ptr<Cardlist>(new Cardlist())) ); //View cards
     cont->addWidget( new DictEdit(cont, def_dir_) ); //Dict edit view
     cont->addWidget( new CardEdit(cont,def_dir_) ); //Card edit view
     cont->addWidget( makeCardPreview(cont) ); //Card type preview
-    cont->addWidget( new CardlistEditor(cont, def_dir_) );
+    cont->addWidget( cardedit );
 
     cont_ = cont;
     setCentralWidget(cont);
 
     reloadCardlist();
+
+    connect(cardedit, &CardlistEditor::newCardlistAdded, this, &MainWindow::reloadDir);
+    connect(cardedit, &CardlistEditor::newCardlistAdded, ui->actionClear, &QAction::trigger);
 }
 
 MainWindow::~MainWindow()
