@@ -47,6 +47,8 @@ private slots:
 
     void on_saveAsFileBtn_clicked();
 
+    void on_convertBtn_clicked();
+
 private:
     Ui::CardlistEditor *ui;
 

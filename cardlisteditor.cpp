@@ -644,3 +644,57 @@ void CardlistEditor::setCurListSaved(bool value)
         ui->savedLable->hide();
     }
 }
+
+void CardlistEditor::on_convertBtn_clicked()
+{
+    if( !cur_list_saved_ || !cur_card_saved_  )
+    {
+        int ret_val = openUnsaveWorkDialog();
+        if( ret_val == QMessageBox::Cancel ) return;
+    }
+
+    if(cur_list_.size() == 0) return;
+
+    //Open convert dialog
+    QMessageBox msg;
+    msg.setText("Convert currently opened card list cards into currently selected card type. Matching fields from old card types will be copied to new card type, but other data will be lost.");
+    msg.setInformativeText("A new list will be created with converted cards. Do you want to continue?");
+    msg.setStandardButtons(QMessageBox::Ok|QMessageBox::Cancel);
+    msg.setDefaultButton(QMessageBox::Cancel);
+
+    if(msg.exec() == QMessageBox::Cancel) return;
+
+    //Go over items in current list and try to convert to new type (cur selected type)
+    QVariantList new_list;
+    c_type_id_t new_type = getCurSelectedType();
+    //QVariantMap new_template = CardFactory::getTypeTemplate(new_type);
+    for(QVariant &old: cur_list_)
+    {
+        QVariantMap old_card = old.toMap();
+        QVariantMap old_data = old_card[CardFactory::cardTmplDataFieldName].toMap();
+        QStringList old_fields = old_data.keys();
+        QVariantMap new_card = CardFactory::getInstance().getCardTemplate(new_type);
+        QVariantMap new_data = new_card[CardFactory::cardTmplDataFieldName].toMap();
+
+        //Copy data from old cards matching fields to new card
+        for(QString &field: old_fields)
+        {
+            if(new_data.contains(field))
+            {
+                new_data[field] = old_data[field];
+            }
+        }
+        new_card[CardFactory::cardTmplDataFieldName] = new_data;
+        new_list.append(new_card);
+    }
+
+    //Set new list and close old file
+    cur_list_ = new_list;
+
+    cur_file_name_ = "";
+    delete cur_file_;
+    cur_file_ = nullptr;
+    setCurListSaved(false);
+
+    populateCardlistView();
+}
